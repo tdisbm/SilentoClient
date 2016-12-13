@@ -1,0 +1,12 @@
+controllers:
+  login_controller:
+    class: controllers.LoginController
+    template: resources/views/login.fxml
+    options:
+      - main
+
+  chat_controller:
+    class: controllers.ChatController
+    template: resources/views/chat.fxml
+    options:
+      - option1

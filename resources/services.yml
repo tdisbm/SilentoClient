@@ -1,0 +1,3 @@
+sensors:
+  socket_wrapper:
+    class: services.SocketWrapper

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="539.0" prefWidth="731.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ChatController">
+   <children>
+      <TabPane fx:id="activeBox" layoutX="14.0" layoutY="14.0" prefHeight="445.0" prefWidth="514.0">
+        <tabs>
+          <Tab text="Welcome" closable="false">
+               <content>
+                  <Label prefHeight="172.0" prefWidth="298.0" text="Welcome to Silento">
+                     <font>
+                        <Font size="33.0" />
+                     </font>
+                  </Label>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+      <TabPane layoutX="528.0" layoutY="14.0" prefHeight="445.0" prefWidth="193.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Users">
+            <content>
+              <GridPane fx:id="userList" prefHeight="200.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+          <Tab text="Rooms">
+            <content>
+              <GridPane fx:id="roomList" minHeight="0.0" minWidth="0.0" prefHeight="416.0" prefWidth="184.0" />
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+      <TextField fx:id="messageField" layoutX="14.0" layoutY="482.0" prefHeight="33.0" prefWidth="514.0" />
+      <Button fx:id="sendButton" layoutX="528.0" layoutY="482.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="193.0" text="Send" onAction="#sendMessage" />
+   </children>
+</AnchorPane>
