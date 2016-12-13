@@ -9,4 +9,4 @@ controllers:
     class: controllers.ChatController
     template: resources/views/chat.fxml
     options:
-      - option1
+      - opt1

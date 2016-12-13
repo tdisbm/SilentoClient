@@ -1,3 +1,5 @@
 sensors:
   socket_wrapper:
     class: services.SocketWrapper
+  user_entity:
+    class: entity.User

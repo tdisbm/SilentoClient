@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import entity.User;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -37,17 +38,19 @@ public class LoginController extends Controller {
     private void registerEvents() {
         SocketWrapper wrapper = (SocketWrapper) this.get("sensors.socket_wrapper");
         LoginController that = this;
+        ChatController chatController = (ChatController) this.get("controllers.chat_controller");
+        User user = (User) that.get("sensors.user_entity");
 
-        wrapper.getSocket().on("connection.success", objects -> javafx.application.Platform.runLater(() -> {
-            that.hideErrorMessage();
-            that.switchController((ChatController) this.get("controllers.chat_controller"));
+        wrapper.getSocket().on(SocketEvents.CATCHER_CONNECTION_SUCCESS, objects -> javafx.application.Platform.runLater(() -> {
+            this.hideErrorMessage();
+            this.switchController(chatController);
+
+            user.setUsername(username.getText());
         }));
 
-        wrapper.getSocket().on("connection.failed", objects -> javafx.application.Platform.runLater(() -> {
+        wrapper.getSocket().on(SocketEvents.CATCHER_CONNECTION_FAILED, objects -> javafx.application.Platform.runLater(() -> {
             try {
-                that.showErrorMessage(
-                    ((JSONObject) objects[0]).get("message").toString()
-                );
+                that.showErrorMessage(((JSONObject) objects[0]).get("message").toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
