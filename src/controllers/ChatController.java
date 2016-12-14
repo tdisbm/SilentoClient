@@ -23,19 +23,23 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class ChatController extends Controller {
+    public static final String KEY_EVENT = "event";
+    public static final String KEY_DESTINATION = "destination";
+
     public GridPane userList;
 //    public GridPane roomList;
     public TextArea messageField;
     public Button sendButton;
     public TabPane activeBox;
 
-    private String currentDestination;
     private String currentSendEvent;
     private Socket socket;
+    private User user;
 
     @Override
     public void init() {
         this.socket = ((SocketWrapper) this.get("services.socket_wrapper")).getSocket();
+        this.user = (User) this.get("services.user_entity");
         this.registerSocketEvents();
         this.onActiveBoxChange();
         this.onMessageBoxInput();
@@ -45,20 +49,32 @@ public class ChatController extends Controller {
     public void sendMessage() {
         try {
             String message = messageField.getText().trim();
+            JSONObject userData = (JSONObject) activeBox
+                .getSelectionModel()
+                .getSelectedItem()
+                .getUserData()
+            ;
 
-            if (message.isEmpty()) {
+            if (userData == null) {
                 return;
             }
 
-            String username = ((User) this.get("services.user_entity")).getUsername();
+            String destination = (String) userData.get(KEY_DESTINATION);
+            String event = (String) userData.get(KEY_EVENT);
+
+            if (message.isEmpty() || destination.isEmpty() || event.isEmpty()) {
+                return;
+            }
+
+            String username = this.user.getUsername();
 
             JSONObject params = new JSONObject();
-            params.put("to", currentDestination);
+            params.put("to", destination);
             params.put("from", username);
             params.put("message", message);
-            this.socket.emit(currentSendEvent, params);
+            this.socket.emit(event, params);
 
-            messageField.setText("");
+            messageField.clear();
             appendText(username, message, null);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -66,16 +82,7 @@ public class ChatController extends Controller {
     }
 
     private void initialEmit() {
-        try {
-            User user = (User) this.get("services.user_entity");
-            JSONObject params = new JSONObject();
-
-            params.put("exclude", new JSONArray("[\"" + user.getUsername() + "\"]"));
-
-            this.socket.emit(SocketEvents.EMITTER_USER_NAME_LIST, params);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        this.socket.emit(SocketEvents.EMITTER_USER_NAME_LIST);
     }
 
     private void registerSocketEvents() {
@@ -88,6 +95,11 @@ public class ChatController extends Controller {
         objects -> javafx.application.Platform.runLater(() -> {
             JSONObject message = (JSONObject) objects[0];
             try {
+                addTabToActiveBox(
+                    (String) message.get("from"),
+                    SocketEvents.EMITTER_MESSAGE_TO_USER,
+                    false
+                );
                 appendText(
                     (String) message.get("from"),
                     (String) message.get("message"),
@@ -99,46 +111,57 @@ public class ChatController extends Controller {
         }));
     }
 
-    private void addTabToActiveBox(String title) {
+    private void addTabToActiveBox(String username, String event, boolean select) {
         Tab tab = new Tab();
         tab.setClosable(true);
 
         for (Tab t : activeBox.getTabs()) {
-            if (Objects.equals(t.getText(), title)) {
+            if (Objects.equals(t.getText(), username)) {
                 activeBox.getSelectionModel().select(t);
                 return;
             }
         }
 
-        ScrollPane sp = new ScrollPane();
-        sp.setFitToWidth(true);
-        sp.setContent(new GridPane());
-        tab.setContent(sp);
-        tab.setText(title);
-        activeBox.getTabs().add(tab);
-        activeBox.getSelectionModel().select(tab);
+        try {
+            JSONObject userData = new JSONObject();
+            userData.put(KEY_EVENT, event);
+            userData.put(KEY_DESTINATION, username);
+
+            ScrollPane sp = new ScrollPane();
+            sp.setFitToWidth(true);
+            sp.setContent(new GridPane());
+            tab.setContent(sp);
+            tab.setText(username);
+            tab.setUserData(userData);
+            activeBox.getTabs().add(tab);
+            if (select) {
+                activeBox.getSelectionModel().select(tab);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void onUserLabelClick(Label l) {
-        l.setOnMouseClicked(event -> {
-            addTabToActiveBox(l.getText());
-            currentSendEvent = SocketEvents.EMITTER_MESSAGE_TO_USER;
-        });
+        l.setOnMouseClicked(event ->
+            addTabToActiveBox(l.getText(), SocketEvents.EMITTER_MESSAGE_TO_USER, true)
+        );
     }
 
-    private void onRoomButtonClick(Button b) {
-        b.setOnMouseClicked(event -> {
-            addTabToActiveBox(b.getText());
-            currentSendEvent = SocketEvents.EMITTER_MESSAGE_TO_ROOM;
-        });
-    }
+//    private void onRoomButtonClick(Button b) {
+//        b.setOnMouseClicked(event -> {
+//            addTabToActiveBox(b.getText(), true);
+//            currentSendEvent = SocketEvents.EMITTER_MESSAGE_TO_ROOM;
+//        });
+//    }
 
     private void onActiveBoxChange() {
-        activeBox.getSelectionModel().selectedItemProperty().addListener(
-            (ov, t, t1) -> {
-                currentDestination = activeBox.getSelectionModel().getSelectedItem().getText();
-            }
-        );
+//        activeBox.getSelectionModel().selectedItemProperty().addListener(
+//            (ov, t, t1) -> {
+//                currentDestination = activeBox.getSelectionModel().getSelectedItem().getText();
+//                currentSendEvent = SocketEvents.EMITTER_MESSAGE_TO_USER;
+//            }
+//        );
     }
 
     private void onMessageBoxInput() {
@@ -162,11 +185,20 @@ public class ChatController extends Controller {
         Insets insets;
         Image image;
 
+        String currentUserName = this.user.getUsername();
+
         userList.getChildren().clear();
 
         try {
-            for (int i = 0; i < users.length(); i++) {
+            for (int i = 0, row = 0; i < users.length(); i++) {
                 userName = (String) users.get(i);
+
+                if (Objects.equals(currentUserName, userName)) {
+                    if (row > 0) {
+                        row--;
+                    }
+                    continue;
+                }
 
                 imageView = new ImageView();
                 imageView.setFitHeight(55.0);
@@ -191,7 +223,8 @@ public class ChatController extends Controller {
                 GridPane.setHalignment(userLabel, HPos.CENTER);
                 GridPane.setValignment(userLabel, VPos.CENTER);
                 onUserLabelClick(userLabel);
-                userList.addRow(i, imageView, userLabel);
+                userList.addRow(row, imageView, userLabel);
+                row++;
             }
         } catch (JSONException e) {
             e.printStackTrace();

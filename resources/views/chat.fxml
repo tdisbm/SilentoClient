@@ -67,9 +67,9 @@
             </Tab>
         </tabs>
       </TabPane>
-      <TabPane fx:id="activeBox" layoutY="-1.0" prefHeight="507.0" prefWidth="941.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="activeBox" layoutY="-1.0" prefHeight="507.0" prefWidth="941.0" side="BOTTOM">
          <tabs>
-            <Tab text="Welcome">
+            <Tab text="Welcome" closable="false">
                <content>
                   <ScrollPane prefHeight="478.0" prefWidth="955.0">
                      <content>
