@@ -44,30 +44,7 @@
           </Tab>
             <Tab text="Rooms">
                <content>
-                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #08A5C2;">
-                     <content>
-                        <GridPane prefHeight="55.0" prefWidth="218.0">
-                           <children>
-                              <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
-                                 <image>
-                                    <Image url="@img/send.png" />
-                                 </image>
-                                 <GridPane.margin>
-                                    <Insets left="6.0" />
-                                 </GridPane.margin>
-                              </ImageView>
-                              <Label text="Vasile Staver" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                           </children>
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="70.0" minWidth="55.0" prefWidth="70.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="151.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                        </GridPane>
-                     </content>
-                  </ScrollPane>
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" />
                </content>
             </Tab>
         </tabs>
@@ -76,7 +53,7 @@
          <tabs>
             <Tab closable="false" text="Welcome">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="478.0" prefWidth="955.0" vvalue="1.0">
+                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="478.0" prefWidth="955.0" vbarPolicy="NEVER" vvalue="1.0">
                      <content>
                         <WebView fx:id="welcomeBox" cacheHint="QUALITY" maxHeight="-1.0" maxWidth="-1.0" minHeight="478.0" minWidth="940.0" prefHeight="478.0" prefWidth="940.0" />
                      </content>
