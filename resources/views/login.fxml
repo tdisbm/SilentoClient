@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -7,26 +8,13 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #086677;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginController">
    <children>
-      <Button defaultButton="true" layoutX="209.0" layoutY="252.0" mnemonicParsing="false" onAction="#loginAction" prefHeight="27.0" prefWidth="87.0" style="-fx-background-color: #08A5C2;" text="Login" textFill="WHITE" />
-      <TextField fx:id="username" layoutX="211.0" layoutY="175.0" mouseTransparent="false" prefHeight="25.0" prefWidth="178.0" promptText="username" />
-      <PasswordField fx:id="password" layoutX="211.0" layoutY="210.0" mouseTransparent="false" prefHeight="25.0" prefWidth="178.0" promptText="password" />
+      <Button defaultButton="true" layoutX="213.0" layoutY="225.0" mnemonicParsing="false" onAction="#loginAction" prefHeight="27.0" prefWidth="178.0" style="-fx-background-color: #08A5C2;" text="Enjoy!" textFill="WHITE" />
+      <TextField fx:id="username" alignment="CENTER" layoutX="213.0" layoutY="192.0" mouseTransparent="false" prefHeight="25.0" prefWidth="178.0" promptText="nickname" />
       <Label fx:id="warning" layoutX="211.0" layoutY="235.0" prefHeight="17.0" prefWidth="178.0" visible="false" />
-      <Text layoutX="180.0" layoutY="146.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Silentio">
+      <Text fill="#e4e4e4" layoutX="182.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Silentio">
          <font>
             <Font size="72.0" />
          </font>
-         <fill>
-            <LinearGradient cycleMethod="REFLECT" endX="0.3619047619047619" endY="0.8333333333333333" startX="0.38571428571428573" startY="0.2857142857142857">
-               <stops>
-                  <Stop color="#81b8d0" />
-                  <Stop color="#81b8d0" offset="0.007662835249042145" />
-                  <Stop color="#e4e4e4" offset="0.6551724137931034" />
-                  <Stop color="#e4e4e4" offset="1.0" />
-               </stops>
-            </LinearGradient>
-         </fill>
       </Text>
-      <Hyperlink alignment="CENTER" contentDisplay="CENTER" layoutX="209.0" layoutY="288.0" prefHeight="23.0" prefWidth="178.0" text="Forgot your password?" textFill="WHITE" visited="true" />
-      <Button defaultButton="true" layoutX="302.0" layoutY="252.0" mnemonicParsing="false" onAction="#loginAction" prefHeight="27.0" prefWidth="87.0" style="-fx-background-color: #08A5C2;" text="Sign up" textFill="WHITE" />
    </children>
 </AnchorPane>

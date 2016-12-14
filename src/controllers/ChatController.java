@@ -11,6 +11,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import kraken.extension.fx.controller.Controller;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +33,7 @@ public class ChatController extends Controller {
     public TextArea messageField;
     public Button sendButton;
     public TabPane activeBox;
+    public WebView welcomeBox;
 
     private Socket socket;
     private User user;
@@ -41,6 +44,7 @@ public class ChatController extends Controller {
         this.user = (User) this.get("services.user_entity");
         this.registerSocketEvents();
         this.onMessageBoxInput();
+        this.initWelcomeBox();
         this.initialEmit();
     }
 
@@ -77,6 +81,11 @@ public class ChatController extends Controller {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void initWelcomeBox() {
+        WebEngine engine = welcomeBox.getEngine();
+        engine.load("http://silento.16mb.com/");
     }
 
     private void initialEmit() {
