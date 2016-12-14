@@ -23,7 +23,6 @@ public class SocketWrapper {
 
         urlBuilder
             .addParameter("username", config.get("username").asText())
-            .addParameter("password", config.get("password").asText())
             .addParameter("role", config.get("role").asText())
         ;
 

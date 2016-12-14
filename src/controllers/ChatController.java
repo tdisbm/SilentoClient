@@ -32,7 +32,6 @@ public class ChatController extends Controller {
     public Button sendButton;
     public TabPane activeBox;
 
-    private String currentSendEvent;
     private Socket socket;
     private User user;
 
@@ -41,7 +40,6 @@ public class ChatController extends Controller {
         this.socket = ((SocketWrapper) this.get("services.socket_wrapper")).getSocket();
         this.user = (User) this.get("services.user_entity");
         this.registerSocketEvents();
-        this.onActiveBoxChange();
         this.onMessageBoxInput();
         this.initialEmit();
     }
@@ -87,9 +85,11 @@ public class ChatController extends Controller {
 
     private void registerSocketEvents() {
         this.socket.on(SocketEvents.CATCHER_USER_NAME_LIST,
-        objects -> javafx.application.Platform.runLater(() ->
-            updateUserList((JSONArray) objects[0]))
-        );
+        objects -> javafx.application.Platform.runLater(() -> {
+            JSONArray users = (JSONArray) objects[0];
+            updateUserList(users);
+//            updateActiveBox(users);
+        }));
 
         socket.on(SocketEvents.CATCHER_MESSAGE_TO_USER,
         objects -> javafx.application.Platform.runLater(() -> {
@@ -155,20 +155,14 @@ public class ChatController extends Controller {
 //        });
 //    }
 
-    private void onActiveBoxChange() {
-//        activeBox.getSelectionModel().selectedItemProperty().addListener(
-//            (ov, t, t1) -> {
-//                currentDestination = activeBox.getSelectionModel().getSelectedItem().getText();
-//                currentSendEvent = SocketEvents.EMITTER_MESSAGE_TO_USER;
-//            }
-//        );
-    }
-
     private void onMessageBoxInput() {
         messageField.setOnKeyPressed(keyEvent -> {
             KeyCode code = keyEvent.getCode();
 
-            if (code == KeyCode.SHIFT){
+            if (code == KeyCode.ENTER && keyEvent.isShiftDown()){
+                String text = messageField.getText() + System.getProperty("line.separator");
+                messageField.setText(text);
+                messageField.positionCaret(text.length());
                 return;
             }
 
@@ -230,6 +224,18 @@ public class ChatController extends Controller {
             e.printStackTrace();
         }
     }
+
+//    private void updateActiveBox(JSONArray users) {
+//        String current;
+//        try {
+//            for (int i = 0, n = users.length(); i < n; i++) {
+//                current = (String) users.get(i);
+//                activeBox.lookup()
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void appendText(String from, String message, String tabName) {
         ScrollPane sp = null;

@@ -3,7 +3,6 @@ package controllers;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import entity.User;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import kraken.extension.fx.controller.Controller;
 import org.json.JSONException;
@@ -15,7 +14,6 @@ public class LoginController extends Controller {
     public final static String MESSAGE_INVALID_CREDENTIALS = "incorrect password or username!";
 
     public TextField username;
-    public PasswordField password;
     public Label warning;
 
     public void loginAction() {
@@ -28,7 +26,6 @@ public class LoginController extends Controller {
         ObjectNode connectionParameters = (ObjectNode) this.get("parameters.connection");
 
         connectionParameters.put("username", username.getText());
-        connectionParameters.put("password", password.getText());
         connectionParameters.put("role", SocketRoles.ROLE_USER);
 
         wrapper.connect(connectionParameters);
@@ -58,8 +55,7 @@ public class LoginController extends Controller {
 
     private boolean validateInput() {
         return !(
-            username.getText().isEmpty() &&
-            password.getText().isEmpty()
+            username.getText().isEmpty()
         );
     }
 
