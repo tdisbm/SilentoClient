@@ -1,4 +1,4 @@
-package controllers;
+package controller;
 
 import entity.User;
 import io.socket.client.Socket;
@@ -18,10 +18,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketWrapper;
+import util.GridPaneUtil;
+import util.JSONArrayUtil;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class ChatController extends Controller {
@@ -97,7 +97,7 @@ public class ChatController extends Controller {
         objects -> javafx.application.Platform.runLater(() -> {
             JSONArray users = (JSONArray) objects[0];
             updateUserList(users);
-//            updateActiveBox(users);
+            updateActiveBox(users);
         }));
 
         socket.on(SocketEvents.CATCHER_MESSAGE_TO_USER,
@@ -114,9 +114,7 @@ public class ChatController extends Controller {
                     (String) message.get("message"),
                     (String) message.get("from")
                 );
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            } catch (JSONException ignore) {}
         }));
     }
 
@@ -156,13 +154,6 @@ public class ChatController extends Controller {
             addTabToActiveBox(l.getText(), SocketEvents.EMITTER_MESSAGE_TO_USER, true)
         );
     }
-
-//    private void onRoomButtonClick(Button b) {
-//        b.setOnMouseClicked(event -> {
-//            addTabToActiveBox(b.getText(), true);
-//            currentSendEvent = SocketEvents.EMITTER_MESSAGE_TO_ROOM;
-//        });
-//    }
 
     private void onMessageBoxInput() {
         messageField.setOnKeyPressed(keyEvent -> {
@@ -234,17 +225,16 @@ public class ChatController extends Controller {
         }
     }
 
-//    private void updateActiveBox(JSONArray users) {
-//        String current;
-//        try {
-//            for (int i = 0, n = users.length(); i < n; i++) {
-//                current = (String) users.get(i);
-//                activeBox.lookup()
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    // TODO: Add source to check if is online to io.server
+    private void updateActiveBox(JSONArray users) {
+        int i = 0;
+        for (Tab t: activeBox.getTabs()) {
+            if (JSONArrayUtil.indexOf(users, t.getText()) == -1 && t.isClosable()) {
+                activeBox.getTabs().remove(i);
+            }
+            i++;
+        }
+    }
 
     private void appendText(String from, String message, String tabName) {
         ScrollPane sp = null;
@@ -264,22 +254,11 @@ public class ChatController extends Controller {
         GridPane gp = (GridPane) sp.getContent();
 
         if (gp != null) {
-            int rowCount = countGridPaneRows(gp);
+            int rowCount = GridPaneUtil.countRows(gp);
 
             if (rowCount > -1) {
                 gp.addRow(rowCount, new Label(from + ":   " + message));
             }
-        }
-    }
-
-    private int countGridPaneRows(GridPane pane) {
-        Method method;
-        try {
-            method = pane.getClass().getDeclaredMethod("getNumberOfRows");
-            method.setAccessible(true);
-            return (Integer) method.invoke(pane);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            return -1;
         }
     }
 }

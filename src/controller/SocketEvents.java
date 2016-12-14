@@ -1,4 +1,4 @@
-package controllers;
+package controller;
 
 public class SocketEvents {
     public static final String CATCHER_USER_NAME_LIST = "user_name_list";

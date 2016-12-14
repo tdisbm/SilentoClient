@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.*?>
-<?import javafx.scene.web.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import java.lang.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<AnchorPane id="chat_background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="575.0" prefWidth="1159.0" style="-fx-background-color: #086677;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ChatController">
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
+<AnchorPane id="chat_background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="575.0" prefWidth="1159.0" style="-fx-background-color: #086677;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatController">
    <children>
       <TextArea fx:id="messageField" layoutX="14.0" layoutY="518.0" prefHeight="45.0" prefWidth="921.0" />
       <Button fx:id="sendButton" layoutX="945.0" layoutY="517.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="45.0" prefWidth="204.0" style="-fx-background-color: #08A5C2;" text="Send" textFill="WHITE">
