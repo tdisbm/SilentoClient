@@ -1,7 +1,8 @@
 package controller;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import entity.User;
+import io.socket.client.IO;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import kraken.extension.fx.controller.Controller;
@@ -23,12 +24,16 @@ public class LoginController extends Controller {
         }
 
         SocketWrapper wrapper = (SocketWrapper) this.get("services.socket_wrapper");
-        ObjectNode connectionParameters = (ObjectNode) this.get("parameters.connection");
+        TextNode url = (TextNode) this.get("parameters.silento_server_url");
 
-        connectionParameters.put("username", username.getText());
-        connectionParameters.put("role", SocketRoles.ROLE_USER);
+        IO.Options opts = new IO.Options();
 
-        wrapper.connect(connectionParameters);
+        opts.query = String.format("role=%s&username=%s",
+            SocketRoles.ROLE_USER,
+            username.getText()
+        );
+
+        wrapper.connect(url.textValue(), opts);
         this.registerEvents();
     }
 

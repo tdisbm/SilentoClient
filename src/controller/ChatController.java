@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -42,6 +43,7 @@ public class ChatController extends Controller {
     public void init() {
         this.socket = ((SocketWrapper) this.get("services.socket_wrapper")).getSocket();
         this.user = (User) this.get("services.user_entity");
+
         this.registerSocketEvents();
         this.onMessageBoxInput();
         this.initWelcomeBox();
@@ -124,7 +126,9 @@ public class ChatController extends Controller {
 
         for (Tab t : activeBox.getTabs()) {
             if (Objects.equals(t.getText(), username)) {
-                activeBox.getSelectionModel().select(t);
+                if (select) {
+                    activeBox.getSelectionModel().select(t);
+                }
                 return;
             }
         }
@@ -136,6 +140,7 @@ public class ChatController extends Controller {
 
             ScrollPane sp = new ScrollPane();
             sp.setFitToWidth(true);
+            sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             sp.setContent(new GridPane());
             tab.setContent(sp);
             tab.setText(username);
@@ -211,6 +216,8 @@ public class ChatController extends Controller {
 
                 userLabel = new Label();
                 userLabel.setText(userName);
+                userLabel.setCursor(javafx.scene.Cursor.OPEN_HAND);
+                userLabel.setTextFill(Paint.valueOf("#fff"));
 
                 userLabel.setTextAlignment(TextAlignment.CENTER);
                 GridPane.setColumnIndex(userLabel, i);
@@ -258,6 +265,7 @@ public class ChatController extends Controller {
 
             if (rowCount > -1) {
                 gp.addRow(rowCount, new Label(from + ":   " + message));
+                sp.setVvalue(sp.getVmax() + 10);
             }
         }
     }
