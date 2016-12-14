@@ -53,11 +53,7 @@
          <tabs>
             <Tab closable="false" text="Welcome">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="478.0" prefWidth="955.0" vbarPolicy="NEVER" vvalue="1.0">
-                     <content>
-                        <WebView fx:id="welcomeBox" cacheHint="QUALITY" maxHeight="-1.0" maxWidth="-1.0" minHeight="478.0" minWidth="940.0" prefHeight="478.0" prefWidth="940.0" />
-                     </content>
-                  </ScrollPane>
+                  <WebView fx:id="welcomeBox" cacheHint="QUALITY" maxHeight="-1.0" maxWidth="-Infinity" minHeight="467.0" minWidth="913.0" prefHeight="467.0" prefWidth="982.0" />
                </content>
             </Tab>
          </tabs>

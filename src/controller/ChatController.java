@@ -1,5 +1,6 @@
 package controller;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import entity.User;
 import io.socket.client.Socket;
 import javafx.geometry.HPos;
@@ -86,8 +87,9 @@ public class ChatController extends Controller {
     }
 
     private void initWelcomeBox() {
+        String url = ((TextNode) this.get("parameters.silento_news_url")).asText();
         WebEngine engine = welcomeBox.getEngine();
-        engine.load("http://silento.16mb.com/index.html");
+        engine.load(url);
     }
 
     private void initialEmit() {

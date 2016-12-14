@@ -5,6 +5,7 @@
 .tab-pane
 {
     -fx-tab-min-width:81px;
+
 }
 
 .tab{
@@ -13,12 +14,13 @@
 .tab-pane .tab
 {
     -fx-background-color: #e6e6e6;
-
+    -fx-background-radius: 0;
 }
 
 .tab-pane .tab:selected
 {
     -fx-background-color: #08A5C2;
+    -fx-background-radius: 0;
 }
 
 .tab .tab-label { 
@@ -31,4 +33,24 @@
 .tab:selected .tab-label { 
     -fx-alignment: CENTER;
     -fx-text-fill: #e6e6e6;
+}
+
+.user-row{
+    background-color: #e6e6e6;
+}
+
+.scroll-bar .thumb{
+    -fx-background-color: #08A5C2;
+    -fx-background-radius: 0;
+}
+.scroll-bar .increment-button{
+    -fx-opacity: 0;
+}
+
+.scroll-pane{
+    -fx-background-color: #e6e6e6;
+}
+
+.scroll-pane > .viewport{
+    -fx-background-color: #e6e6e6;
 }
