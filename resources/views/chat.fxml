@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -7,20 +12,21 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
+
 <AnchorPane id="chat_background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="575.0" prefWidth="1159.0" style="-fx-background-color: #086677;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatController">
    <children>
-      <TextArea fx:id="messageField" layoutX="14.0" layoutY="518.0" prefHeight="45.0" prefWidth="921.0" />
-      <Button fx:id="sendButton" layoutX="945.0" layoutY="517.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="45.0" prefWidth="204.0" style="-fx-background-color: #08A5C2;" text="Send" textFill="WHITE">
+      <TextArea fx:id="messageField" layoutX="14.0" layoutY="518.0" prefHeight="45.0" prefWidth="913.0" style="-fx-background-radius: 0;" />
+      <Button fx:id="sendButton" layoutX="940.0" layoutY="517.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="45.0" prefWidth="206.0" style="-fx-background-color: #08A5C2; -fx-background-radius: 0;" text="Send" textFill="WHITE">
          <font>
             <Font size="17.0" />
          </font></Button>
-      <TabPane layoutX="940.0" layoutY="-1.0" prefHeight="507.0" prefWidth="219.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+      <TabPane layoutX="940.0" layoutY="11.0" prefHeight="495.0" prefWidth="206.0" side="BOTTOM" style="-fx-background-color: e6e6e6;" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="Users">
                <content>
-                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <GridPane fx:id="userList" prefHeight="478.0" prefWidth="219.0" style="-fx-background-color: #08A5C2;">
+                        <GridPane fx:id="userList" prefHeight="466.0" prefWidth="206.0" style="-fx-background-color: e6e6e6;">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="70.0" minWidth="55.0" prefWidth="70.0" />
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="151.0" />
@@ -38,41 +44,18 @@
           </Tab>
             <Tab text="Rooms">
                <content>
-                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
-                     <content>
-                        <GridPane prefHeight="55.0" prefWidth="218.0">
-                           <children>
-                              <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
-                                 <image>
-                                    <Image url="@img/send.png" />
-                                 </image>
-                                 <GridPane.margin>
-                                    <Insets left="6.0" />
-                                 </GridPane.margin>
-                              </ImageView>
-                              <Label text="Vasile Staver" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                           </children>
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="70.0" minWidth="55.0" prefWidth="70.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="151.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                        </GridPane>
-                     </content>
-                  </ScrollPane>
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" />
                </content>
             </Tab>
         </tabs>
       </TabPane>
-      <TabPane fx:id="activeBox" layoutY="-1.0" prefHeight="507.0" prefWidth="941.0" side="BOTTOM">
+      <TabPane fx:id="activeBox" layoutX="14.0" layoutY="11.0" prefHeight="495.0" prefWidth="913.0" side="BOTTOM" style="-fx-background-color: e6e6e6;">
          <tabs>
             <Tab closable="false" text="Welcome">
                <content>
-                  <ScrollPane prefHeight="478.0" prefWidth="955.0">
+                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="478.0" prefWidth="955.0" vbarPolicy="NEVER" vvalue="1.0">
                      <content>
-                        <WebView fx:id="welcomeBox" cacheHint="QUALITY" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="478.0" minWidth="940.0" prefHeight="478.0" prefWidth="940.0" />
+                        <WebView fx:id="welcomeBox" cacheHint="QUALITY" maxHeight="-1.0" maxWidth="-1.0" minHeight="478.0" minWidth="940.0" prefHeight="478.0" prefWidth="940.0" />
                      </content>
                   </ScrollPane>
                </content>
