@@ -1,4 +1,4 @@
-sensors:
+services:
   socket_wrapper:
     class: services.SocketWrapper
   user_entity:

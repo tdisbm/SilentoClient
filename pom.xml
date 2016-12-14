@@ -16,7 +16,7 @@
         <javafx-maven-plugin.version>8.1.4</javafx-maven-plugin.version>
         <socket.io-client.version>0.7.0</socket.io-client.version>
 
-        <kraken.version>30881f5e53<!--e992869811--></kraken.version>
+        <kraken.version>ce791109b5<!--30881f5e53--><!--e992869811--></kraken.version>
     </properties>
 
     <repositories>

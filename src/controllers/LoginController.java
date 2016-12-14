@@ -5,7 +5,7 @@ import entity.User;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import kraken.extension.scene.controller.Controller;
+import kraken.extension.fx.controller.Controller;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketRoles;
@@ -24,7 +24,7 @@ public class LoginController extends Controller {
             return;
         }
 
-        SocketWrapper wrapper = (SocketWrapper) this.get("sensors.socket_wrapper");
+        SocketWrapper wrapper = (SocketWrapper) this.get("services.socket_wrapper");
         ObjectNode connectionParameters = (ObjectNode) this.get("parameters.connection");
 
         connectionParameters.put("username", username.getText());
@@ -36,15 +36,14 @@ public class LoginController extends Controller {
     }
 
     private void registerEvents() {
-        SocketWrapper wrapper = (SocketWrapper) this.get("sensors.socket_wrapper");
+        SocketWrapper wrapper = (SocketWrapper) this.get("services.socket_wrapper");
         LoginController that = this;
         ChatController chatController = (ChatController) this.get("controllers.chat_controller");
-        User user = (User) that.get("sensors.user_entity");
+        User user = (User) that.get("services.user_entity");
 
         wrapper.getSocket().on(SocketEvents.CATCHER_CONNECTION_SUCCESS, objects -> javafx.application.Platform.runLater(() -> {
-            this.hideErrorMessage();
-            this.switchController(chatController);
-
+            that.hideErrorMessage();
+            that.switchController(chatController);
             user.setUsername(username.getText());
         }));
 

@@ -1,16 +1,13 @@
 package services;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
 import kraken.component.util.url.UrlBuilder;
-import kraken.extension.sensor.Sensor;
 
 import java.net.URISyntaxException;
 
-public class SocketWrapper extends Sensor {
+public class SocketWrapper {
     Socket socket;
 
     public Socket connect(ObjectNode config) {
@@ -45,7 +42,4 @@ public class SocketWrapper extends Sensor {
     public Socket getSocket() {
         return this.socket;
     }
-
-    @Override
-    public void read() {}
 }

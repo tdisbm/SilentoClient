@@ -10,7 +10,7 @@
 
 <AnchorPane id="chat_background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="575.0" prefWidth="1159.0" style="-fx-background-color: #086677;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ChatController">
    <children>
-      <TextArea layoutX="14.0" layoutY="518.0" prefHeight="45.0" prefWidth="921.0" />
+      <TextArea fx:id="messageField" layoutX="14.0" layoutY="518.0" prefHeight="45.0" prefWidth="921.0" />
       <Button fx:id="sendButton" layoutX="945.0" layoutY="517.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="45.0" prefWidth="204.0" style="-fx-background-color: #08A5C2;" text="Send" textFill="WHITE">
          <font>
             <Font size="17.0" />
@@ -21,31 +21,16 @@
                <content>
                   <ScrollPane prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <GridPane prefHeight="478.0" prefWidth="218.0">
+                        <GridPane fx:id="userList" prefHeight="478.0" prefWidth="218.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="70.0" minWidth="55.0" prefWidth="70.0" />
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="151.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <ImageView fitHeight="55.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
-                                 <image>
-                                    <Image url="@img/send.png" />
-                                 </image>
-                                 <GridPane.margin>
-                                    <Insets left="6.0" />
-                                 </GridPane.margin>
-                              </ImageView>
-                              <Label text="Vasile Staver" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+
                            </children>
                         </GridPane>
                      </content>
@@ -82,7 +67,7 @@
             </Tab>
         </tabs>
       </TabPane>
-      <TabPane layoutY="-1.0" prefHeight="507.0" prefWidth="941.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="activeBox" layoutY="-1.0" prefHeight="507.0" prefWidth="941.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
          <tabs>
             <Tab text="Welcome">
                <content>

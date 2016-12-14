@@ -8,9 +8,9 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #086677;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginController">
    <children>
       <Button defaultButton="true" layoutX="209.0" layoutY="252.0" mnemonicParsing="false" onAction="#loginAction" prefHeight="27.0" prefWidth="87.0" style="-fx-background-color: #08A5C2;" text="Login" textFill="WHITE" />
-      <TextField fx:id="username" layoutX="211.0" layoutY="175.0" mouseTransparent="true" prefHeight="25.0" prefWidth="178.0" promptText="username" />
-      <PasswordField fx:id="password" layoutX="211.0" layoutY="210.0" mouseTransparent="true" prefHeight="25.0" prefWidth="178.0" promptText="password" />
-      <Label fx:id="warning" layoutX="211.0" layoutY="235.0" prefHeight="17.0" prefWidth="178.0" textFill="#f20202" visible="false" />
+      <TextField fx:id="username" layoutX="211.0" layoutY="175.0" mouseTransparent="false" prefHeight="25.0" prefWidth="178.0" promptText="username" />
+      <PasswordField fx:id="password" layoutX="211.0" layoutY="210.0" mouseTransparent="false" prefHeight="25.0" prefWidth="178.0" promptText="password" />
+      <Label fx:id="warning" layoutX="211.0" layoutY="235.0" prefHeight="17.0" prefWidth="178.0" visible="false" />
       <Text layoutX="180.0" layoutY="146.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Silentio">
          <font>
             <Font size="72.0" />
