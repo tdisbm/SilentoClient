@@ -139,9 +139,11 @@ public class ChatController extends Controller {
             userData.put(KEY_DESTINATION, username);
 
             ScrollPane sp = new ScrollPane();
+            GridPane gp = new GridPane();
+            sp.vvalueProperty().bind(gp.heightProperty());
             sp.setFitToWidth(true);
             sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-            sp.setContent(new GridPane());
+            sp.setContent(gp);
             tab.setContent(sp);
             tab.setText(username);
             tab.setUserData(userData);
@@ -208,7 +210,7 @@ public class ChatController extends Controller {
                 GridPane.setHalignment(imageView, HPos.LEFT);
                 GridPane.setValignment(imageView, VPos.CENTER);
 
-                image = new Image(new File("../../resources/views/img/send.png").toURI().toString());
+                image = new Image(new File("resources/views/img/send.png").toURI().toString());
                 imageView.setImage(image);
 
                 insets = new Insets(0,0,0,6);
@@ -217,7 +219,7 @@ public class ChatController extends Controller {
                 userLabel = new Label();
                 userLabel.setText(userName);
                 userLabel.setCursor(javafx.scene.Cursor.OPEN_HAND);
-                userLabel.setTextFill(Paint.valueOf("#fff"));
+                userLabel.setTextFill(Paint.valueOf("#08A5C2"));
 
                 userLabel.setTextAlignment(TextAlignment.CENTER);
                 GridPane.setColumnIndex(userLabel, i);
@@ -264,8 +266,13 @@ public class ChatController extends Controller {
             int rowCount = GridPaneUtil.countRows(gp);
 
             if (rowCount > -1) {
+//                System.out.println("before: " + rowCount);
+//                System.out.println("before: " + sp.getHeight());
                 gp.addRow(rowCount, new Label(from + ":   " + message));
-                sp.setVvalue(sp.getVmax() + 10);
+//                System.out.println("after: " + GridPaneUtil.countRows(gp));
+//                System.out.println("after: " + sp.getHvalue());
+//                System.out.println();
+
             }
         }
     }
