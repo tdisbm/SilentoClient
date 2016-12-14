@@ -85,7 +85,7 @@ public class ChatController extends Controller {
 
     private void initWelcomeBox() {
         WebEngine engine = welcomeBox.getEngine();
-        engine.load("http://silento.16mb.com/");
+        engine.load("http://silento.16mb.com/index.html");
     }
 
     private void initialEmit() {
