@@ -3,76 +3,89 @@ package controller;
 import com.fasterxml.jackson.databind.node.TextNode;
 import entity.User;
 import io.socket.client.IO;
-import javafx.scene.control.Label;
+import io.socket.client.Socket;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
 import kraken.extension.fx.controller.Controller;
-import org.json.JSONException;
-import org.json.JSONObject;
 import services.SocketRoles;
 import services.SocketWrapper;
+import util.Constraints;
+import util.JSONObjectUtil;
+import util.SocketEvents;
 
 public class LoginController extends Controller {
-    public final static String MESSAGE_INVALID_CREDENTIALS = "incorrect password or username!";
+    public final static String MESSAGE_MANDATORY_USERNAME = "username is mandatory";
 
     public TextField username;
-    public Label warning;
+    public Text error;
+
+    private SocketWrapper socketWrapper;
+    private User user;
+
+    @Override
+    public void init() {
+        this.getStage().setResizable(false);
+        this.socketWrapper = this.get("services.socket_wrapper");
+        this.user = this.get("services.user_entity");
+
+        TextNode url = this.get("parameters.silento_server_url");
+        socketWrapper.initialize(url.asText(), new IO.Options());
+
+        this.registerUsernameEvents();
+    }
+
+    public void registerUsernameEvents() {
+        username.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() >= Constraints.USERNAME_MAX_LENGTH) {
+                ((StringProperty)observable).setValue(oldValue);
+            }
+        });
+    }
 
     public void loginAction() {
-        if (!this.validateInput()) {
-            this.showErrorMessage(MESSAGE_INVALID_CREDENTIALS);
+        String username = this.username.getText();
+
+        if (username.isEmpty()) {
+            this.showErrorMessage(MESSAGE_MANDATORY_USERNAME);
             return;
         }
 
-        SocketWrapper wrapper = (SocketWrapper) this.get("services.socket_wrapper");
-        TextNode url = (TextNode) this.get("parameters.silento_server_url");
-
-        IO.Options opts = new IO.Options();
-
-        opts.query = String.format("role=%s&username=%s",
+        socketWrapper.getOpts().query = String.format("role=%s&username=%s",
             SocketRoles.ROLE_USER,
-            username.getText()
+            username
         );
 
-        wrapper.connect(url.textValue(), opts);
-        this.registerEvents();
+        socketWrapper.create();
+        socketWrapper.connect();
+        this.registerSocketEvents();
     }
 
-    private void registerEvents() {
-        SocketWrapper wrapper = (SocketWrapper) this.get("services.socket_wrapper");
-        LoginController that = this;
-        ChatController chatController = (ChatController) this.get("controllers.chat_controller");
-        User user = (User) that.get("services.user_entity");
+    private void registerSocketEvents() {
+        Socket s = socketWrapper.getSocket();
 
-        wrapper.getSocket().on(SocketEvents.CATCHER_CONNECTION_SUCCESS, objects -> javafx.application.Platform.runLater(() -> {
-            that.hideErrorMessage();
-            that.switchController(chatController);
+        s.on(SocketEvents.CATCHER_CONNECTION_SUCCESS,
+        objects -> javafx.application.Platform.runLater(() -> {
+            hideErrorMessage();
+            switchController(this.get("controllers.chat_controller"));
             user.setUsername(username.getText());
         }));
 
-        wrapper.getSocket().on(SocketEvents.CATCHER_CONNECTION_FAILED, objects -> javafx.application.Platform.runLater(() -> {
-            try {
-                that.showErrorMessage(((JSONObject) objects[0]).get("message").toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }));
-    }
-
-    private boolean validateInput() {
-        return !(
-            username.getText().isEmpty()
-        );
+        s.on(SocketEvents.CATCHER_CONNECTION_FAILED,
+        objects -> javafx.application.Platform.runLater(() ->
+            showErrorMessage(JSONObjectUtil.get("message", objects[0]))
+        ));
     }
 
     private void showErrorMessage(String message) {
-        warning.setText(message);
+        error.setText(message);
 
-        if (!warning.isVisible()) {
-            warning.setVisible(true);
+        if (!error.isVisible()) {
+            error.setVisible(true);
         }
     }
 
     private void hideErrorMessage() {
-        warning.setVisible(false);
+        error.setVisible(false);
     }
 }

@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
+
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #086677;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
    <children>
       <Button defaultButton="true" layoutX="213.0" layoutY="225.0" mnemonicParsing="false" onAction="#loginAction" prefHeight="27.0" prefWidth="178.0" style="-fx-background-color: #08A5C2;" text="Enjoy!" textFill="WHITE" />
       <TextField fx:id="username" alignment="CENTER" layoutX="213.0" layoutY="192.0" mouseTransparent="false" prefHeight="25.0" prefWidth="178.0" promptText="nickname" />
-      <Label fx:id="warning" layoutX="211.0" layoutY="235.0" prefHeight="17.0" prefWidth="178.0" visible="false" />
       <Text fill="#e4e4e4" layoutX="182.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Silentio">
          <font>
             <Font size="72.0" />
+         </font>
+      </Text>
+      <Text fill="#a42a2a" fx:id="error" fontSmoothingType="LCD" layoutX="213.0" layoutY="283.0" stroke="#030303" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="178.0">
+         <font>
+            <Font size="16.0" />
          </font>
       </Text>
    </children>

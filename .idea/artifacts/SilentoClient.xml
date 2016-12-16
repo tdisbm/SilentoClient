@@ -1,0 +1,22 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="SilentoClient">
+    <output-path>$PROJECT_DIR$/classes/artifacts/SilentoClient</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="kraken.extension.fx.FXLauncher$App" />
+        <option name="convertCss2Bin" value="true" />
+        <option name="description" value="" />
+        <option name="htmlParamFile" value="" />
+        <option name="nativeBundle" value="exe" />
+        <option name="paramFile" value="" />
+        <option name="title" value="nmvnv" />
+        <option name="vendor" value="jlkjhkg" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="SilentoClient.jar">
+        <element id="module-output" name="SilentoClient" />
+      </element>
+    </root>
+  </artifact>
+</component>

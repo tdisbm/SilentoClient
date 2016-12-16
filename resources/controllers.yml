@@ -8,5 +8,3 @@ controllers:
   chat_controller:
     class: controller.ChatController
     template: resources/views/chat.fxml
-    options:
-      - opt1

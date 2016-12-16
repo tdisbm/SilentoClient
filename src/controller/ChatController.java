@@ -22,6 +22,8 @@ import org.json.JSONObject;
 import services.SocketWrapper;
 import util.GridPaneUtil;
 import util.JSONArrayUtil;
+import util.JSONObjectUtil;
+import util.SocketEvents;
 
 import java.io.File;
 import java.util.Objects;
@@ -39,11 +41,13 @@ public class ChatController extends Controller {
 
     private Socket socket;
     private User user;
+    private JSONObject messagePacket;
 
     @Override
     public void init() {
         this.socket = ((SocketWrapper) this.get("services.socket_wrapper")).getSocket();
-        this.user = (User) this.get("services.user_entity");
+        this.user = this.get("services.user_entity");
+        this.messagePacket = new JSONObject();
 
         this.registerSocketEvents();
         this.onMessageBoxInput();
@@ -52,44 +56,34 @@ public class ChatController extends Controller {
     }
 
     public void sendMessage() {
-        try {
-            String message = messageField.getText().trim();
-            JSONObject userData = (JSONObject) activeBox
-                .getSelectionModel()
-                .getSelectedItem()
-                .getUserData()
-            ;
+        String message = messageField.getText().trim();
+        JSONObject userData = (JSONObject) activeBox
+            .getSelectionModel()
+            .getSelectedItem()
+            .getUserData()
+        ;
 
-            if (userData == null) {
-                return;
-            }
-
-            String destination = (String) userData.get(KEY_DESTINATION);
-            String event = (String) userData.get(KEY_EVENT);
-
-            if (message.isEmpty() || destination.isEmpty() || event.isEmpty()) {
-                return;
-            }
-
-            String username = this.user.getUsername();
-
-            JSONObject params = new JSONObject();
-            params.put("to", destination);
-            params.put("from", username);
-            params.put("message", message);
-            this.socket.emit(event, params);
-
-            messageField.clear();
-            appendText(username, message, null);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (message.isEmpty() || userData == null) {
+            return;
         }
+
+        String destination = JSONObjectUtil.get(KEY_DESTINATION, userData);
+        String event = JSONObjectUtil.get(KEY_EVENT, userData);
+        String username = this.user.getUsername();
+
+        JSONObjectUtil.put("to", messagePacket, destination);
+        JSONObjectUtil.put("from", messagePacket, username);
+        JSONObjectUtil.put("message", messagePacket, message);
+        this.socket.emit(event, messagePacket);
+
+        messageField.clear();
+        appendText(username, message, null);
     }
 
     private void initWelcomeBox() {
-        String url = ((TextNode) this.get("parameters.silento_news_url")).asText();
+        TextNode url = this.get("parameters.silento_news_url");
         WebEngine engine = welcomeBox.getEngine();
-        engine.load(url);
+        engine.load(url.asText());
     }
 
     private void initialEmit() {
@@ -106,19 +100,16 @@ public class ChatController extends Controller {
 
         socket.on(SocketEvents.CATCHER_MESSAGE_TO_USER,
         objects -> javafx.application.Platform.runLater(() -> {
-            JSONObject message = (JSONObject) objects[0];
-            try {
-                addTabToActiveBox(
-                    (String) message.get("from"),
-                    SocketEvents.EMITTER_MESSAGE_TO_USER,
-                    false
-                );
-                appendText(
-                    (String) message.get("from"),
-                    (String) message.get("message"),
-                    (String) message.get("from")
-                );
-            } catch (JSONException ignore) {}
+            addTabToActiveBox(
+                JSONObjectUtil.get("from", objects[0]),
+                SocketEvents.EMITTER_MESSAGE_TO_USER,
+                false
+            );
+            appendText(
+                JSONObjectUtil.get("from", objects[0]),
+                JSONObjectUtil.get("message", objects[0]),
+                JSONObjectUtil.get("from", objects[0])
+            );
         }));
     }
 
@@ -268,13 +259,7 @@ public class ChatController extends Controller {
             int rowCount = GridPaneUtil.countRows(gp);
 
             if (rowCount > -1) {
-//                System.out.println("before: " + rowCount);
-//                System.out.println("before: " + sp.getHeight());
                 gp.addRow(rowCount, new Label(from + ":   " + message));
-//                System.out.println("after: " + GridPaneUtil.countRows(gp));
-//                System.out.println("after: " + sp.getHvalue());
-//                System.out.println();
-
             }
         }
     }
