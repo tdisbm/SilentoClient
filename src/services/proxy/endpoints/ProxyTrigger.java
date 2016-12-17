@@ -47,6 +47,10 @@ public class ProxyTrigger {
             session.getBasicRemote().sendText(mw.toString());
         }
 
+        if (Objects.equals(transmissionStatus, ProxyChain.TRANSMISSION_DONE)) {
+            System.out.println("sdfsdfsdf");
+        }
+
         latch.countDown();
     }
 

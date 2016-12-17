@@ -31,7 +31,13 @@ public class ProxyChain {
         ProxyTrigger pt = new ProxyTrigger();
         pt.setMessageWrapper(mw);
 
-        client.connectToServer(pt, URI.create(mw.charge()));
+        String url = mw.charge();
+        if (url == null) {
+            session.getBasicRemote().sendText(TRANSMISSION_DONE);
+            return;
+        }
+
+        client.connectToServer(pt, URI.create(url));
         session.close(new CloseReason(
             CloseReason.CloseCodes.NORMAL_CLOSURE,
             TRANSMISSION_PASSED

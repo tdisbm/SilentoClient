@@ -3,6 +3,8 @@
 import entity.Message;
 import services.proxy.ProxyManager;
 
+import java.io.File;
+
 public class Main {
     public static void main(String[] args) {
         Message m = new Message();
@@ -15,10 +17,10 @@ public class Main {
         pm.addProxyServer("178.168.58.17", 1300);
         pm.proxify(m::toString);
 
-//        new Kraken()
-//            .sink(new File("resources/controllers.yml"))
-//            .sink(new File("resources/parameters.yml"))
-//            .sink(new File("resources/services.yml"))
-//        .dive();
+        new Kraken()
+            .sink(new File("resources/controllers.yml"))
+            .sink(new File("resources/parameters.yml"))
+            .sink(new File("resources/services.yml"))
+        .dive();
     }
 }

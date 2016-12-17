@@ -24,8 +24,8 @@ public class ProxyManager {
     private String externalAddress;
     private PortScanner scanner;
 
-    private ProxyTrigger sle;
-    private ClientManager trigger;
+    private ProxyTrigger trigger;
+    private ClientManager client;
     private Server server;
     private int usedPort;
     private int deep;
@@ -87,10 +87,10 @@ public class ProxyManager {
                 socket.connect(new InetSocketAddress(externalAddress, port), 200);
 
                 if (socket.isConnected()) {
-                    this.sle = new ProxyTrigger();
-                    this.sle.setProxyManager(this);
+                    this.trigger = new ProxyTrigger();
+                    this.trigger.setProxyManager(this);
                     this.server = server;
-                    this.trigger = ClientManager.createClient();
+                    this.client = ClientManager.createClient();
                     this.usedPort = port;
 
                     socket.close();
@@ -99,7 +99,9 @@ public class ProxyManager {
 
                 socket.close();
                 server.stop();
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -131,9 +133,13 @@ public class ProxyManager {
     }
 
     public ProxyManager proxify(Callable<String> callable) {
+        if (server == null) {
+            return this;
+        }
+
         try {
-            this.sle.prepareMessage(callable.call());
-            this.trigger.connectToServer(sle, URI.create(String.format(
+            this.trigger.prepareMessage(callable.call());
+            this.client.connectToServer(trigger, URI.create(String.format(
                 "ws://%s:%s%s",
                 externalAddress,
                 usedPort,

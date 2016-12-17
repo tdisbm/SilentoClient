@@ -9,7 +9,6 @@ import java.util.List;
 
 class MessageWrapper {
     private String message;
-
     private List<String> proxyStack;
 
     public MessageWrapper() {
@@ -47,7 +46,11 @@ class MessageWrapper {
     }
 
     public String charge() {
-        return this.proxyStack.remove(0);
+        try {
+            return this.proxyStack.remove(0);
+        } catch (IndexOutOfBoundsException e) {
+            return  null;
+        }
     }
 
     public String toString() {
@@ -69,6 +72,7 @@ class MessageWrapper {
 
             proxyStack = (JSONArray) json.get("proxyStack");
             for (int i = 0, n = proxyStack.length(); i < n; i++) {
+                if (!proxyStack.get(i).toString().isEmpty())
                 this.addProxyAddress(proxyStack.get(i).toString());
             }
         } catch (JSONException e) {
