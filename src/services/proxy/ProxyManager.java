@@ -130,7 +130,7 @@ public class ProxyManager {
         return proxyServersList;
     }
 
-    public ProxyManager proxify(Callable<Object> callable) {
+    public ProxyManager proxify(Callable<String> callable) {
         try {
             this.sle.prepareMessage(callable.call());
             this.trigger.connectToServer(sle, URI.create(String.format(

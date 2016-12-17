@@ -1,20 +1,19 @@
 package entity;
 
-import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Message {
-    private String text;
+    private String message;
     private String receiver;
     private String sender;
-    private List<String> proxyStack;
 
-
-    public String getText() {
-        return text;
+    public String getMessage() {
+        return message;
     }
 
-    public Message setText(String text) {
-        this.text = text;
+    public Message setMessage(String message) {
+        this.message = message;
 
         return this;
     }
@@ -37,5 +36,42 @@ public class Message {
         this.sender = sender;
 
         return this;
+    }
+
+    public String toString() {
+        return String.format("{" +
+            "sender: \"%s\"," +
+            "receiver: \"%s\"," +
+            "message: \"%s\"" +
+            "}",
+            sender,
+            receiver,
+            message
+        );
+    }
+
+    public Message parseString(String toParse) {
+        try {
+            JSONObject json = new JSONObject(toParse);
+            sender = (String) json.get("sender");
+            receiver = (String) json.get("receiver");
+            message = (String) json.get("message");
+        } catch (JSONException ignored) {
+        }
+
+        return this;
+    }
+
+    public static Message fromString(String jsonString) {
+        Message instance = new Message();
+        try {
+            JSONObject json = new JSONObject(jsonString);
+            instance.setSender((String) json.get("sender"));
+            instance.setReceiver((String) json.get("receiver"));
+            instance.setMessage((String) json.get("message"));
+        } catch (JSONException ignored) {
+        }
+
+        return instance;
     }
 }
