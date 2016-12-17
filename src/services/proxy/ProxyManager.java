@@ -2,7 +2,6 @@ package services.proxy;
 
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.server.Server;
-import org.json.JSONObject;
 import services.proxy.endpoints.ProxyChain;
 import services.proxy.endpoints.ProxyTrigger;
 
@@ -13,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +32,7 @@ public class ProxyManager {
 
     public ProxyManager(int deep) {
         this.deep = deep == 0 ? PROXY_DEEP : deep;
+        this.proxyServersList = new LinkedList<>();
 
         detectExternalAddress();
         initPortScanner();
@@ -48,16 +49,22 @@ public class ProxyManager {
     }
 
     private void runScanning() {
-        try {
-            scanner.addCallback(() -> {
-                createServer();
-                scanner.clearCallbacks();
-                return null;
-            });
-            scanner.runScanning();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        if (scanner.getAvailablePorts().size() > 0) {
+            return;
         }
+
+        new Thread(() -> {
+            try {
+                scanner.addCallback(() -> {
+                    createServer();
+                    scanner.clearCallbacks();
+                    return null;
+                });
+                scanner.runScanning();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void createServer() {
@@ -91,6 +98,7 @@ public class ProxyManager {
                 }
 
                 socket.close();
+                server.stop();
             } catch (Exception ignored) {}
         }
     }
@@ -106,7 +114,14 @@ public class ProxyManager {
     }
 
     public ProxyManager addProxyServer(String ip, int port) {
-        this.proxyServersList.add(String.format("ws://%s:%s%s", ip, port, ProxyChain.ENDPOINT));
+        String address = String.format("ws://%s:%s%s", ip, port, ProxyChain.ENDPOINT);
+
+        for (String p : this.proxyServersList) {
+            if (p.equals(address)) {
+                return this;
+            }
+        }
+        this.proxyServersList.add(address);
 
         return this;
     }
@@ -115,13 +130,7 @@ public class ProxyManager {
         return proxyServersList;
     }
 
-    public ProxyManager setProxyServersList(List<String> proxyServersList) {
-        this.proxyServersList = proxyServersList;
-
-        return this;
-    }
-
-    public ProxyManager proxify(Callable<String> callable) {
+    public ProxyManager proxify(Callable<Object> callable) {
         try {
             this.sle.prepareMessage(callable.call());
             this.trigger.connectToServer(sle, URI.create(String.format(
@@ -131,8 +140,18 @@ public class ProxyManager {
                 ProxyChain.ENDPOINT
             )));
 
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return this;
+    }
+
+    public int getDeep() {
+        return deep;
+    }
+
+    public void setDeep(int deep) {
+        this.deep = deep;
     }
 }

@@ -7,17 +7,16 @@ import java.io.IOException;
 @ServerEndpoint(ProxyChain.ENDPOINT)
 public class ProxyChain {
     public static final String ENDPOINT = "/next";
+    public static final String MESSAGE_RECEIVED = "received";
 
     @OnOpen
-    public void onOpen(Session session) throws IOException {
+    public void onOpen(Session session) throws IOException, EncodeException {
+        session.getBasicRemote().sendObject(MESSAGE_RECEIVED);
     }
 
     @OnMessage
     public String onMessage(String message, Session session) {
+        System.out.println(message);
         return "";
-    }
-
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
     }
 }
