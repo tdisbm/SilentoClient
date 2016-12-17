@@ -1,54 +1,80 @@
 package services.proxy.endpoints;
 
+import org.glassfish.tyrus.client.ClientManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.proxy.ProxyManager;
 
 import javax.websocket.*;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 
 @ClientEndpoint
 public class ProxyTrigger {
-    public static final int STATUS_PROCESSING = 1;
     public static final int STATUS_EMPTY_MESSAGE = 2;
     public static final int STATUS_MALFORMED_MESSAGE = 3;
     public static final int STATUS_EMPTY_PROXY_LiST = 4;
     public static final int STATUS_BROKEN = 5;
     public static final int STATUS_PASSED = 6;
+    public static final int STATUS_DONE = 7;
 
     private ProxyManager proxyManager;
+    private ClientManager client = ClientManager.createClient();
     private int status;
 
-    private MessageWrapper mw;
-    private CountDownLatch latch = new CountDownLatch(1);
+    private MessageWrapper messageWrapper;
     private List<StatusChangeCallback> callbacks;
+    private ExecutorService executor;
+
+    private final static CountDownLatch latch = new CountDownLatch(1);
 
     public ProxyTrigger() {
         callbacks = new LinkedList<>();
-        mw = new MessageWrapper();
+        messageWrapper = new MessageWrapper();
+        executor = Executors.newFixedThreadPool(1);
     }
 
     public ProxyTrigger setMessageWrapper(MessageWrapper mw) {
-        this.mw = mw;
+        this.messageWrapper = mw;
 
         return this;
     }
 
     @OnMessage
-    public void onMessage(String transmissionStatus, Session session) throws IOException, EncodeException {
-        if (Objects.equals(transmissionStatus, ProxyChain.TRANSMISSION_INITIALIZED)) {
-            if (mw.getMessage() == null) {
-                updateStatus(STATUS_EMPTY_MESSAGE);
-                return;
-            }
-            updateStatus(STATUS_PROCESSING);
-            session.getBasicRemote().sendText(mw.toString());
+    public void onMessage(String message, Session session) throws IOException, EncodeException {
+        if (Objects.equals(message, ProxyChain.TRANSMISSION_ALLOWED)) {
+            messageWrapper.setStatus(ProxyChain.TRANSMISSION_ALLOWED);
+            session.getBasicRemote().sendText(messageWrapper.toString());
+            return;
         }
 
-        if (Objects.equals(transmissionStatus, ProxyChain.TRANSMISSION_DONE)) {
-            System.out.println("sdfsdfsdf");
+        this.messageWrapper.parseString(message);
+
+        if (Objects.equals(this.messageWrapper.getStatus(), ProxyChain.TRANSMISSION_PASSED)) {
+            final String nextUri[] = new String[1];
+            Future<Boolean> f;
+            while (true) {
+                nextUri[0] = messageWrapper.charge();
+                f = executor.submit(() -> {
+                    client.connectToServer(this, URI.create(nextUri[0]));
+                    return true;
+                });
+
+                try {
+                    boolean connected = f.get(2000, TimeUnit.MILLISECONDS);
+                    if (connected) {
+                        updateStatus(STATUS_PASSED);
+                        return;
+                    }
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    if (nextUri[0] == null) {
+                        updateStatus(STATUS_DONE);
+                        return;
+                    }
+                }
+            }
         }
 
         latch.countDown();
@@ -61,9 +87,10 @@ public class ProxyTrigger {
         } else {
             updateStatus(STATUS_BROKEN);
         }
+        latch.countDown();
     }
 
-    private void updateStatus(int status) {
+    public void updateStatus(int status) {
         this.status = status;
 
         for (StatusChangeCallback c : callbacks) {
@@ -89,7 +116,8 @@ public class ProxyTrigger {
             return this;
         }
 
-        mw.setMessage(message);
+        messageWrapper.setMessage(message);
+        messageWrapper.getProxyStack().clear();
         List<String> proxyServers = proxyManager.getProxyServersList();
 
 
@@ -113,7 +141,7 @@ public class ProxyTrigger {
 
         Collections.shuffle(list);
         for (int i = min; i < deep; i++) {
-            mw.addProxyAddress(proxyServers.get(list.get(i)));
+            messageWrapper.addProxyAddress(proxyServers.get(list.get(i)));
         }
 
         return this;

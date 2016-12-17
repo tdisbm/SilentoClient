@@ -8,10 +8,7 @@ import services.proxy.endpoints.ProxyTrigger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,13 +18,13 @@ public class ProxyManager {
     public static final int PROXY_DEEP = 3;
 
     private List<String> proxyServersList;
-    private String externalAddress;
+    private String extIp;
     private PortScanner scanner;
 
     private ProxyTrigger trigger;
+    private URI currentUri;
     private ClientManager client;
     private Server server;
-    private int usedPort;
     private int deep;
 
     public ProxyManager(int deep) {
@@ -41,11 +38,11 @@ public class ProxyManager {
     }
 
     private void initPortScanner() {
-        if (externalAddress == null) {
+        if (extIp == null) {
             return;
         }
 
-        scanner = new PortScanner(externalAddress, null);
+        scanner = new PortScanner(extIp, null);
     }
 
     private void runScanning() {
@@ -75,30 +72,25 @@ public class ProxyManager {
             return;
         }
 
-        Server server;
         Socket socket;
 
         for (int port : available) {
             try {
-                server = new Server("localhost", port, "/", ProxyChain.class);
-                server.start();
+                try {
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress(extIp, port), 200);
+                } catch (SocketTimeoutException ignored) {
+                    trigger = new ProxyTrigger();
+                    trigger.setProxyManager(this);
+                    server = new Server("localhost", port, "/", ProxyChain.class);
+                    server.start();
 
-                socket = new Socket();
-                socket.connect(new InetSocketAddress(externalAddress, port), 200);
+                    client = ClientManager.createClient();
+                    currentUri =  URI.create(String.format("ws://%s:%s%s", extIp, port, ProxyChain.ENDPOINT));
+                    client.connectToServer(trigger, currentUri);
 
-                if (socket.isConnected()) {
-                    this.trigger = new ProxyTrigger();
-                    this.trigger.setProxyManager(this);
-                    this.server = server;
-                    this.client = ClientManager.createClient();
-                    this.usedPort = port;
-
-                    socket.close();
                     break;
                 }
-
-                socket.close();
-                server.stop();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -107,7 +99,7 @@ public class ProxyManager {
 
     private void detectExternalAddress() {
         try {
-            externalAddress = new BufferedReader(
+            extIp = new BufferedReader(
                 new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream())
             ).readLine();
         } catch (IOException e) {
@@ -138,15 +130,10 @@ public class ProxyManager {
         }
 
         try {
-            this.trigger.prepareMessage(callable.call());
-            this.client.connectToServer(trigger, URI.create(String.format(
-                "ws://%s:%s%s",
-                externalAddress,
-                usedPort,
-                ProxyChain.ENDPOINT
-            )));
-
+            trigger.prepareMessage(callable.call());
+            ClientManager.createClient().connectToServer(trigger, currentUri);
         } catch (Exception e) {
+            trigger.updateStatus(ProxyTrigger.STATUS_BROKEN);
             e.printStackTrace();
         }
 

@@ -14,7 +14,9 @@ public class Main {
         ;
 
         ProxyManager pm = new ProxyManager(0);
-        pm.addProxyServer("178.168.58.17", 1300);
+        pm.addProxyServer("178.168.58.17", 1299);
+        pm.addProxyServer("178.168.58.17", 6000);
+        pm.addProxyServer("178.168.58.17", 7000);
         pm.proxify(m::toString);
 
         new Kraken()

@@ -7,8 +7,9 @@ import org.json.JSONObject;
 import java.util.LinkedList;
 import java.util.List;
 
-class MessageWrapper {
+public class MessageWrapper {
     private String message;
+    private String status;
     private List<String> proxyStack;
 
     public MessageWrapper() {
@@ -59,7 +60,7 @@ class MessageWrapper {
             String.join("\",\"", this.proxyStack)
         );
 
-        return String.format("{message: %s, %s}", message, proxyStack);
+        return String.format("{message: %s, %s, status: %s}", message, proxyStack, status);
     }
 
     public MessageWrapper parseString(String jsonString) {
@@ -68,6 +69,7 @@ class MessageWrapper {
         try {
             JSONObject json = new JSONObject(jsonString);
             this.setMessage(json.get("message").toString());
+            this.setStatus(json.get("status").toString());
             this.proxyStack.clear();
 
             proxyStack = (JSONArray) json.get("proxyStack");
@@ -79,6 +81,15 @@ class MessageWrapper {
             e.printStackTrace();
         }
 
+        return this;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public MessageWrapper setStatus(String status) {
+        this.status = status;
         return this;
     }
 }

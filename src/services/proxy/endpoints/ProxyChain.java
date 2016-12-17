@@ -1,48 +1,43 @@
 package services.proxy.endpoints;
 
-import org.glassfish.tyrus.client.ClientManager;
-
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 @ServerEndpoint(ProxyChain.ENDPOINT)
 public class ProxyChain {
-    public static final String ENDPOINT = "/next";
-    public static final String TRANSMISSION_INITIALIZED = "initialized";
+    public static final String ENDPOINT_SECRET = "wh49s5lb2ne1";
+    public static final String ENDPOINT = "/next/" + ENDPOINT_SECRET;
     public static final String TRANSMISSION_PASSED = "passed";
-    public static final String TRANSMISSION_DONE = "done";
+    public static final String TRANSMISSION_ALLOWED = "allowed";
 
-    private MessageWrapper mw = new MessageWrapper();
-    private CountDownLatch latch = new CountDownLatch(1);
-    private ClientManager client = ClientManager.createClient();
+    private static final List<Session> peers = new LinkedList<>();
+    private static final CountDownLatch latch = new CountDownLatch(1);
+    private MessageWrapper messageWrapper = new MessageWrapper();
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
-        session.getBasicRemote().sendObject(TRANSMISSION_INITIALIZED);
+        if (!peers.isEmpty()) {
+            session.getBasicRemote().sendText(TRANSMISSION_ALLOWED);
+            return;
+        }
+
+        peers.add(session);
         latch.countDown();
     }
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException, EncodeException, DeploymentException {
-        mw.parseString(message);
-        ProxyTrigger pt = new ProxyTrigger();
-        pt.setMessageWrapper(mw);
+        messageWrapper.parseString(message);
 
-        String url = mw.charge();
-        if (url == null) {
-            session.getBasicRemote().sendText(TRANSMISSION_DONE);
-            return;
+        if (Objects.equals(messageWrapper.getStatus(), TRANSMISSION_ALLOWED)) {
+            messageWrapper.setStatus(TRANSMISSION_PASSED);
+            peers.get(0).getBasicRemote().sendText(messageWrapper.toString());
         }
-
-        client.connectToServer(pt, URI.create(url));
-        session.close(new CloseReason(
-            CloseReason.CloseCodes.NORMAL_CLOSURE,
-            TRANSMISSION_PASSED
-        ));
-
         latch.countDown();
     }
 }
