@@ -1,6 +1,8 @@
 package controller;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.gson.Gson;
+import entity.Message;
 import com.google.gson.GsonBuilder;
 import entity.User;
 import io.socket.client.Socket;
@@ -46,14 +48,16 @@ public class ChatController extends Controller {
 
     private Socket socket;
     private User user;
-    private JSONObject messagePacket;
+    private Message messagePacket;
     private ProxyManager proxyManager;
+    private Gson gson;
 
     @Override
     public void init() {
         this.socket = ((SocketWrapper) this.get("services.socket_wrapper")).getSocket();
         this.user = this.get("services.user_entity");
-        this.messagePacket = new JSONObject();
+        this.messagePacket = new Message();
+        this.gson = new GsonBuilder().create();
 
         this.registerSocketEvents();
         this.onMessageBoxInput();
@@ -74,32 +78,31 @@ public class ChatController extends Controller {
             return;
         }
 
-        String destination = JSONObjectUtil.get(KEY_DESTINATION, userData);
+        String receiver = JSONObjectUtil.get(KEY_DESTINATION, userData);
         String event = JSONObjectUtil.get(KEY_EVENT, userData);
-        String username = this.user.getUsername();
+        String sender = this.user.getUsername();
 
-        JSONObjectUtil.put("to", messagePacket, destination);
-        JSONObjectUtil.put("from", messagePacket, username);
-        JSONObjectUtil.put("message", messagePacket, message);
-        JSONObjectUtil.put("event", messagePacket, event);
+        messagePacket
+            .setReceiver(receiver)
+            .setEvent(event)
+            .setSender(sender)
+            .setMessage(message)
+        ;
 
-        proxyManager.proxify(messagePacket.toString());
-        messageField.deleteText(0, message.length());
+        proxyManager.proxify(gson.toJson(messagePacket));
+        messageField.clear();
     }
 
     private void initProxyManager() {
         this.proxyManager = this.get("services.proxy_manager");
-        this.proxyManager.addProxyAddress("178.168.58.17", 1300);
+        this.proxyManager.addProxyAddress("178.168.58.17", 1299);
         this.proxyManager.setSecureKey("not_so_secure");
-        proxyManager.onTerminate((result) -> {
-            try {
-                JSONObject message = new GsonBuilder().create().fromJson((String) result[0], JSONObject.class);/*new JSONObject(((String)result[0]).replace("\"", ""));*/
-                this.socket.emit(String.valueOf(message.get("event")), message);
-                appendText(String.valueOf(message.get("from")), String.valueOf(message.get("message")), null);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+        proxyManager.onTerminate(result ->
+        javafx.application.Platform.runLater(() -> {
+            Message message = gson.fromJson((String) result[0], Message.class);
+            this.socket.emit(message.getEvent(), message);
+            appendText(message.getSender(), message.getMessage(), null);
+        }));
     }
 
     private void initWelcomeBox() {
