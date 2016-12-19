@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketWrapper;
+import services.proxy.ProxyManager;
 import util.GridPaneUtil;
 import util.JSONArrayUtil;
 import util.JSONObjectUtil;
@@ -42,6 +43,7 @@ public class ChatController extends Controller {
     private Socket socket;
     private User user;
     private JSONObject messagePacket;
+    private ProxyManager proxyManager;
 
     @Override
     public void init() {
@@ -51,6 +53,7 @@ public class ChatController extends Controller {
 
         this.registerSocketEvents();
         this.onMessageBoxInput();
+        this.initProxyManager();
         this.initWelcomeBox();
         this.initialEmit();
     }
@@ -74,10 +77,23 @@ public class ChatController extends Controller {
         JSONObjectUtil.put("to", messagePacket, destination);
         JSONObjectUtil.put("from", messagePacket, username);
         JSONObjectUtil.put("message", messagePacket, message);
-        this.socket.emit(event, messagePacket);
+        JSONObjectUtil.put("event", messagePacket, event);
 
+        proxyManager.proxify(messagePacket.toString());
         messageField.clear();
-        appendText(username, message, null);
+    }
+
+    private void initProxyManager() {
+        this.proxyManager = this.get("services.proxy_manager");
+        proxyManager.onTerminate((result) -> {
+            JSONObject message = new JSONObject(result[0]);
+            try {
+                this.socket.emit(String.valueOf(message.get("event")), messagePacket);
+                appendText(String.valueOf(message.get("from")), String.valueOf(message.get("message")), null);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void initWelcomeBox() {

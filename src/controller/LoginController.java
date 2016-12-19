@@ -8,8 +8,12 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import kraken.extension.fx.controller.Controller;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import services.SocketRoles;
 import services.SocketWrapper;
+import services.proxy.ProxyManager;
 import util.Constraints;
 import util.JSONObjectUtil;
 import util.SocketEvents;
@@ -63,6 +67,7 @@ public class LoginController extends Controller {
 
     private void registerSocketEvents() {
         Socket s = socketWrapper.getSocket();
+        ProxyManager pm = this.get("services.proxy_manager");
 
         s.on(SocketEvents.CATCHER_CONNECTION_SUCCESS,
         objects -> javafx.application.Platform.runLater(() -> {
@@ -75,6 +80,19 @@ public class LoginController extends Controller {
         objects -> javafx.application.Platform.runLater(() ->
             showErrorMessage(JSONObjectUtil.get("message", objects[0]))
         ));
+
+        s.on(SocketEvents.CATCHER_PROXY_LIST,
+        objects -> javafx.application.Platform.runLater(() -> {
+            JSONArray list = (JSONArray) objects[0];
+            for (int i = 0, n = list.length(); i < n; i++) {
+                try {
+                    pm.addProxyAddress(
+                        (String) ((JSONObject) list.get(i)).get("host"),
+                        (Integer) ((JSONObject) list.get(i)).get("port")
+                    );
+                } catch (JSONException ignored) {}
+            }
+        }));
     }
 
     private void showErrorMessage(String message) {

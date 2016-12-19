@@ -40,6 +40,11 @@ public class EventSubscriber {
         return this;
     }
 
+    public EventSubscriber close(String name) {
+        this.events.remove(name);
+        return this;
+    }
+
     @FunctionalInterface
     public interface Callback<T> {
         void call(T result);

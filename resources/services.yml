@@ -3,3 +3,8 @@ services:
     class: services.SocketWrapper
   user_entity:
     class: entity.User
+
+  proxy_manager:
+    class: services.proxy.ProxyManager
+    arguments:
+      - parameters.proxy_deep

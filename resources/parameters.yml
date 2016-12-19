@@ -1,3 +1,5 @@
 parameters:
   silento_server_url: http://178.168.58.17:8000
   silento_news_url: http://silento.16mb.com
+
+  proxy_deep: 2

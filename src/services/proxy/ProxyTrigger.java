@@ -14,7 +14,6 @@ public class ProxyTrigger implements JsonSerializable {
     public static final int DEFAULT_PROXY_DEEP = 2;
 
     private String message;
-    private String status;
     private List<ProxyAddress> proxyStack;
     private List<ProxyAddress> proxyRoute;
     private String secureKey;
@@ -27,15 +26,6 @@ public class ProxyTrigger implements JsonSerializable {
         this.proxyStack = new LinkedList<>();
     }
 
-    public ProxyTrigger setStatus(String status) {
-        this.status = status;
-        return this;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
     public ProxyTrigger setMessage(String message) {
         this.message = message;
         return this;
@@ -43,15 +33,6 @@ public class ProxyTrigger implements JsonSerializable {
 
     public String getMessage() {
         return this.message;
-    }
-
-    public ProxyTrigger setDeep(int deep) {
-        this.deep = deep;
-        return this;
-    }
-
-    public int getDeep() {
-        return deep;
     }
 
     public ProxyTrigger setSecureKey(String secureKey) {
@@ -98,10 +79,9 @@ public class ProxyTrigger implements JsonSerializable {
         }
 
         return String.format(
-            "{proxyRoute: [\"%s\"], message: %s, status: \"%s\", secureKey: \"%s\"}",
+            "{proxyRoute: [\"%s\"], message: %s, secureKey: \"%s\"}",
             serializedProxyStack,
             message,
-            status,
             secureKey
         );
     }
@@ -112,7 +92,6 @@ public class ProxyTrigger implements JsonSerializable {
         try {
             JSONObject json = new JSONObject(jsonString);
             this.setMessage(json.get("message").toString());
-            this.setStatus(json.get("status").toString());
             this.proxyRoute.clear();
 
             proxyStack = (JSONArray) json.get("proxyRoute");

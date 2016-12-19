@@ -1,5 +1,6 @@
 package services.proxy;
 
+import com.fasterxml.jackson.databind.node.IntNode;
 import services.event_subscriber.EventSubscriber;
 
 import java.io.BufferedReader;
@@ -11,7 +12,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public class ProxyManager {
@@ -20,10 +20,10 @@ public class ProxyManager {
     private ProxyServer server;
     private ProxyTrigger trigger;
 
-    public ProxyManager(int deep) {
+    public ProxyManager(IntNode deep) {
         this.extIp = detectExternalAddress();
         this.scanner = new PortScanner(extIp, null);
-        this.trigger = new ProxyTrigger(deep);
+        this.trigger = new ProxyTrigger(deep.intValue());
 
         createServer();
     }
