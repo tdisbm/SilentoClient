@@ -87,10 +87,6 @@ public class ProxyManager {
     }
 
     public ProxyManager proxify(String jsonString) {
-        if (server == null) {
-            return this;
-        }
-
         try {
             trigger.prepareMessage(jsonString);
             ProxyAddress pa = trigger.charge();
@@ -104,6 +100,7 @@ public class ProxyManager {
             s.connect(new InetSocketAddress(pa.getAddress(), pa.getPort()), 200);
             PrintWriter out = new PrintWriter(s.getOutputStream(), true);
             out.println(trigger.toJsonString());
+            s.close();
         } catch (Exception e) {
             server.fireTerminateEvents(jsonString);
         }

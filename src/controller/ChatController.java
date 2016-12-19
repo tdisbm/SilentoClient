@@ -1,8 +1,11 @@
 package controller;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.gson.GsonBuilder;
 import entity.User;
 import io.socket.client.Socket;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -28,6 +31,7 @@ import util.SocketEvents;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ChatController extends Controller {
     public static final String KEY_EVENT = "event";
@@ -80,14 +84,16 @@ public class ChatController extends Controller {
         JSONObjectUtil.put("event", messagePacket, event);
 
         proxyManager.proxify(messagePacket.toString());
-        messageField.clear();
+        messageField.deleteText(0, message.length());
     }
 
     private void initProxyManager() {
         this.proxyManager = this.get("services.proxy_manager");
+        this.proxyManager.addProxyAddress("178.168.58.17", 1300);
+        this.proxyManager.setSecureKey("not_so_secure");
         proxyManager.onTerminate((result) -> {
             try {
-                JSONObject message = new JSONObject(((String)result[0]).replace("\"", ""));
+                JSONObject message = new GsonBuilder().create().fromJson((String) result[0], JSONObject.class);/*new JSONObject(((String)result[0]).replace("\"", ""));*/
                 this.socket.emit(String.valueOf(message.get("event")), message);
                 appendText(String.valueOf(message.get("from")), String.valueOf(message.get("message")), null);
             } catch (JSONException e) {
@@ -245,12 +251,15 @@ public class ChatController extends Controller {
 
     // TODO: Add source to check if is online to io.server
     private void updateActiveBox(JSONArray users) {
-        int i = 0;
-        for (Tab t: activeBox.getTabs()) {
-            if (JSONArrayUtil.indexOf(users, t.getText()) == -1 && t.isClosable()) {
-                activeBox.getTabs().remove(i);
-            }
-            i++;
+        ObservableList<Tab> toRemove = FXCollections.observableArrayList();
+        toRemove.addAll(activeBox.getTabs()
+            .stream()
+            .filter(t -> JSONArrayUtil.indexOf(users, t.getText()) == -1 && t.isClosable())
+            .collect(Collectors.toList())
+        );
+
+        for (Tab t : toRemove) {
+            activeBox.getTabs().remove(t);
         }
     }
 

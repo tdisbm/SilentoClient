@@ -55,6 +55,7 @@ public class ProxyServer {
                         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
                         final String[] result = {""};
+
                         input.lines().forEach(s1 -> result[0] += s1);
 
                         ProxyTrigger pt = this.deserializeMessage(result[0]);
@@ -83,8 +84,6 @@ public class ProxyServer {
                         } else {
                             out.println(INVALID_SECURE_KEY);
                         }
-
-                        socket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

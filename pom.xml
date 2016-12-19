@@ -42,41 +42,41 @@
             <version>${socket.io-client.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-server</artifactId>
-            <version>1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-client</artifactId>
-            <version>1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-container-grizzly</artifactId>
-            <version>1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.grizzly</groupId>
-            <artifactId>grizzly-websockets</artifactId>
-            <version>2.0.0-RC1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>javax.websocket</groupId>-->
+            <!--<artifactId>javax.websocket-api</artifactId>-->
+            <!--<version>1.0</version>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>com.corundumstudio.socketio</groupId>-->
-            <!--<artifactId>netty-socketio</artifactId>-->
-            <!--<version>1.7.12</version>-->
+            <!--<groupId>org.glassfish.tyrus</groupId>-->
+            <!--<artifactId>tyrus-server</artifactId>-->
+            <!--<version>1.1</version>-->
         <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.glassfish.tyrus</groupId>-->
+            <!--<artifactId>tyrus-client</artifactId>-->
+            <!--<version>1.1</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.glassfish.tyrus</groupId>-->
+            <!--<artifactId>tyrus-container-grizzly</artifactId>-->
+            <!--<version>1.1</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>com.sun.grizzly</groupId>-->
+            <!--<artifactId>grizzly-websockets</artifactId>-->
+            <!--<version>2.0.0-RC1</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
+        </dependency>
     </dependencies>
 
     <build>
