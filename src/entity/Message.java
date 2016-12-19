@@ -1,26 +1,26 @@
 package entity;
 
 public class Message {
-    private String receiver;
-    private String sender;
+    private String to;
+    private String from;
     private String message;
     private String event;
 
-    public String getReceiver() {
-        return receiver;
+    public String getTo() {
+        return to;
     }
 
-    public Message setReceiver(String receiver) {
-        this.receiver = receiver;
+    public Message setTo(String to) {
+        this.to = to;
         return this;
     }
 
-    public String getSender() {
-        return sender;
+    public String getFrom() {
+        return from;
     }
 
-    public Message setSender(String sender) {
-        this.sender = sender;
+    public Message setFrom(String from) {
+        this.from = from;
         return this;
     }
 

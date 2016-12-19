@@ -78,14 +78,14 @@ public class ChatController extends Controller {
             return;
         }
 
-        String receiver = JSONObjectUtil.get(KEY_DESTINATION, userData);
+        String to = JSONObjectUtil.get(KEY_DESTINATION, userData);
         String event = JSONObjectUtil.get(KEY_EVENT, userData);
-        String sender = this.user.getUsername();
+        String from = this.user.getUsername();
 
         messagePacket
-            .setReceiver(receiver)
+            .setTo(to)
             .setEvent(event)
-            .setSender(sender)
+            .setFrom(from)
             .setMessage(message)
         ;
 
@@ -101,7 +101,7 @@ public class ChatController extends Controller {
         javafx.application.Platform.runLater(() -> {
             Message message = gson.fromJson((String) result[0], Message.class);
             this.socket.emit(message.getEvent(), message);
-            appendText(message.getSender(), message.getMessage(), null);
+            appendText(message.getFrom(), message.getMessage(), null);
         }));
     }
 
