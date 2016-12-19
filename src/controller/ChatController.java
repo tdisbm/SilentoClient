@@ -91,6 +91,8 @@ public class ChatController extends Controller {
 
         proxyManager.proxify(gson.toJson(messagePacket));
         messageField.clear();
+
+        appendText(from, message, null);
     }
 
     private void initProxyManager() {
@@ -101,7 +103,6 @@ public class ChatController extends Controller {
         javafx.application.Platform.runLater(() -> {
             Message message = gson.fromJson((String) result[0], Message.class);
             this.socket.emit(message.getEvent(), message);
-            appendText(message.getFrom(), message.getMessage(), null);
         }));
     }
 
