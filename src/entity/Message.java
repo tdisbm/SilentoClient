@@ -1,5 +1,8 @@
 package entity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Message {
     private String to;
     private String from;
@@ -40,5 +43,19 @@ public class Message {
     public Message setEvent(String event) {
         this.event = event;
         return this;
+    }
+
+    public JSONObject toJsonObject() {
+        JSONObject o = new JSONObject();
+        try {
+            o.put("message", message);
+            o.put("from", from);
+            o.put("to", to);
+            o.put("event", event);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return o;
     }
 }

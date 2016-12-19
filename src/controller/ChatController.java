@@ -102,7 +102,7 @@ public class ChatController extends Controller {
         proxyManager.onTerminate(result ->
         javafx.application.Platform.runLater(() -> {
             Message message = gson.fromJson((String) result[0], Message.class);
-            this.socket.emit(message.getEvent(), message);
+            this.socket.emit(message.getEvent(), message.toJsonObject());
         }));
     }
 
