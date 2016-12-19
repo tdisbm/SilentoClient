@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ProxyServer {
-    public static final String INVALID_SECURE_KEY = "1";
+    public static final String INVALID_SECURE_KEY = "invalid_secure_key";
     public static final String TERMINATE_EVENT = "terminate";
 
     private EventSubscriber eventSubscriber;
@@ -76,12 +76,15 @@ public class ProxyServer {
                                 if (proxy.isConnected()) {
                                     PrintWriter pout = new PrintWriter(proxy.getOutputStream(), true);
                                     pout.println(pt.toJsonString());
+                                    proxy.close();
                                     break;
                                 }
                             } while ((pa = pt.charge()) != null);
                         } else {
                             out.println(INVALID_SECURE_KEY);
                         }
+
+                        socket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
