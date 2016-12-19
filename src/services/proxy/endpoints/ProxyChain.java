@@ -1,5 +1,11 @@
 package services.proxy.endpoints;
 
+import com.sun.grizzly.websockets.WebSocket;
+import com.sun.grizzly.websockets.WebSocketApplication;
+import com.sun.grizzly.websockets.WebSocketEngine;
+import com.sun.grizzly.websockets.frame.Frame;
+import org.glassfish.grizzly.http.server.HttpServer;
+
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
@@ -9,7 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 @ServerEndpoint(ProxyChain.ENDPOINT)
-public class ProxyChain {
+public class ProxyChain extends WebSocketApplication{
     public static final String ENDPOINT_SECRET = "wh49s5lb2ne1";
     public static final String ENDPOINT = "/next/" + ENDPOINT_SECRET;
     public static final String TRANSMISSION_PASSED = "passed";
@@ -39,5 +45,18 @@ public class ProxyChain {
             peers.get(0).getBasicRemote().sendText(messageWrapper.toString());
         }
         latch.countDown();
+    }
+
+    @Override
+    public void onMessage(WebSocket webSocket, Frame frame) throws IOException {
+        System.out.println("iomaio");
+    }
+
+    public static HttpServer createServer(String host, int port) {
+        final HttpServer server = HttpServer.createSimpleServer(host, port);
+        final ProxyChain chatApplication = new ProxyChain();
+        WebSocketEngine.getEngine().registerApplication(ProxyChain.ENDPOINT, chatApplication);
+
+        return server;
     }
 }

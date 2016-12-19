@@ -34,5 +34,10 @@
     <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-http-server:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-http:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-rcm:2.3.3" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.grizzly:grizzly-websockets:2.0.0-RC1" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.grizzly:grizzly-framework:2.0.0-RC1" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.gmbal:gmbal-api-only:3.0.0-b023" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.external:management-api:3.0.0-b012" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.grizzly:grizzly-http:2.0.0-RC1" level="project" />
   </component>
 </module>

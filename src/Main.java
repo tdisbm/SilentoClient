@@ -1,9 +1,10 @@
 
 
 import entity.Message;
-import services.proxy.ProxyManager;
+import services.proxy.experimental.ProxyManager;
+import services.proxy.experimental.ProxyServer;
 
-import java.io.File;
+import java.io.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,10 +15,13 @@ public class Main {
         ;
 
         ProxyManager pm = new ProxyManager(0);
-        pm.addProxyServer("178.168.58.17", 1299);
-        pm.addProxyServer("178.168.58.17", 6000);
-        pm.addProxyServer("178.168.58.17", 7000);
-        pm.proxify(m::toString);
+        pm.setSecureKey("tester");
+        pm.onTerminate(result -> {
+            System.out.println(result);
+        });
+
+        pm.addProxyAddress("178.168.58.17", 1300);
+        pm.proxify(m.toString());
 
         new Kraken()
             .sink(new File("resources/controllers.yml"))
