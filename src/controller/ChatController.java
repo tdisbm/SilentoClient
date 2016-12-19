@@ -86,9 +86,9 @@ public class ChatController extends Controller {
     private void initProxyManager() {
         this.proxyManager = this.get("services.proxy_manager");
         proxyManager.onTerminate((result) -> {
-            JSONObject message = new JSONObject(result[0]);
             try {
-                this.socket.emit(String.valueOf(message.get("event")), messagePacket);
+                JSONObject message = new JSONObject(((String)result[0]).replace("\"", ""));
+                this.socket.emit(String.valueOf(message.get("event")), message);
                 appendText(String.valueOf(message.get("from")), String.valueOf(message.get("message")), null);
             } catch (JSONException e) {
                 e.printStackTrace();
