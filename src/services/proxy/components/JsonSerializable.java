@@ -1,4 +1,4 @@
-package services.proxy.experimental.components;
+package services.proxy.components;
 
 
 public interface JsonSerializable {

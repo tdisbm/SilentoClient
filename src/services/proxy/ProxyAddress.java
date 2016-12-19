@@ -1,4 +1,4 @@
-package services.proxy.experimental;
+package services.proxy;
 
 public class ProxyAddress {
     private String address;

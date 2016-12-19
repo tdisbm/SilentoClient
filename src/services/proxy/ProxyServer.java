@@ -1,5 +1,7 @@
-package services.proxy.experimental;
+package services.proxy;
 
+
+import services.event_subscriber.EventSubscriber;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,15 +11,15 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ProxyServer {
     public static final String INVALID_SECURE_KEY = "1";
+    public static final String TERMINATE_EVENT = "terminate";
 
-    private LinkedList<TerminateCallback> terminateCallbacks;
+    private EventSubscriber eventSubscriber;
     private LinkedHashMap<Integer, ServerSocket> listeners;
     private ExecutorService serverExecutor;
     private String secureKey;
@@ -25,7 +27,7 @@ public class ProxyServer {
     public ProxyServer() {
         listeners = new LinkedHashMap<>();
         serverExecutor = Executors.newSingleThreadExecutor();
-        terminateCallbacks = new LinkedList<>();
+        eventSubscriber = new EventSubscriber();
     }
 
     public ProxyServer setSecureKey(String key) {
@@ -67,7 +69,10 @@ public class ProxyServer {
                                 }
 
                                 Socket proxy = new Socket();
-                                proxy.connect(new InetSocketAddress(pa.getAddress(), pa.getPort()), 200);
+                                try {
+                                    proxy.connect(new InetSocketAddress(pa.getAddress(), pa.getPort()), 200);
+                                } catch (IOException ignored) {}
+
                                 if (proxy.isConnected()) {
                                     PrintWriter pout = new PrintWriter(proxy.getOutputStream(), true);
                                     pout.println(pt.toJsonString());
@@ -104,18 +109,13 @@ public class ProxyServer {
         return pt;
     }
 
-    public ProxyServer onTerminate(TerminateCallback tc) {
-        this.terminateCallbacks.add(tc);
+    public ProxyServer onTerminate(EventSubscriber.Callback<Object[]> tc) {
+        this.eventSubscriber.subscribe(TERMINATE_EVENT, tc);
         return this;
     }
 
     public ProxyServer fireTerminateEvents(String message) {
-        this.terminateCallbacks.forEach(tc -> tc.call(message));
+        this.eventSubscriber.fire(TERMINATE_EVENT, message);
         return this;
-    }
-
-    @FunctionalInterface
-    public interface TerminateCallback {
-        void call(String result);
     }
 }

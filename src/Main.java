@@ -1,8 +1,7 @@
 
 
 import entity.Message;
-import services.proxy.experimental.ProxyManager;
-import services.proxy.experimental.ProxyServer;
+import services.proxy.ProxyManager;
 
 import java.io.*;
 
@@ -17,10 +16,11 @@ public class Main {
         ProxyManager pm = new ProxyManager(0);
         pm.setSecureKey("tester");
         pm.onTerminate(result -> {
-            System.out.println(result);
+            m.parseString((String) result[0]);
         });
 
         pm.addProxyAddress("178.168.58.17", 1300);
+        pm.addProxyAddress("178.168.58.17", 1299);
         pm.proxify(m.toString());
 
         new Kraken()

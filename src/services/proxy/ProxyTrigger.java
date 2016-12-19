@@ -1,9 +1,9 @@
-package services.proxy.experimental;
+package services.proxy;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import services.proxy.experimental.components.JsonSerializable;
+import services.proxy.components.JsonSerializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,7 +98,7 @@ public class ProxyTrigger implements JsonSerializable {
         }
 
         return String.format(
-            "{proxyStack[\"%s\"], message: %s, status: %s, secureKey: %s}",
+            "{proxyRoute: [\"%s\"], message: %s, status: \"%s\", secureKey: \"%s\"}",
             serializedProxyStack,
             message,
             status,
@@ -113,7 +113,7 @@ public class ProxyTrigger implements JsonSerializable {
             JSONObject json = new JSONObject(jsonString);
             this.setMessage(json.get("message").toString());
             this.setStatus(json.get("status").toString());
-            this.proxyStack.clear();
+            this.proxyRoute.clear();
 
             proxyStack = (JSONArray) json.get("proxyRoute");
             String[] route;

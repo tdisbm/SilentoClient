@@ -1,128 +1,129 @@
-//package services.proxy;
-//
-//import org.glassfish.tyrus.client.ClientManager;
-//import org.glassfish.tyrus.server.Server;
-//import services.proxy.endpoints.ProxyChain;
-//import services.proxy.endpoints.ProxyTrigger;
-//
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-//import java.net.*;
-//import java.util.LinkedList;
-//import java.util.List;
-//import java.util.concurrent.Callable;
-//import java.util.concurrent.ExecutionException;
-//
-//public class ProxyManager {
-//    public static final int PROXY_DEEP = 3;
-//
-//    private List<String> proxyServersList;
-//    private String extIp;
-//    private PortScanner scanner;
-//
-//    private ProxyTrigger trigger;
-//    private URI currentUri;
-//    private ClientManager client;
-//    private Server server;
-//    private int deep;
-//
-//    public ProxyManager(int deep) {
-//        this.deep = deep == 0 ? PROXY_DEEP : deep;
-//        this.proxyServersList = new LinkedList<>();
-//
-//        detectExternalAddress();
-//        initPortScanner();
-//        runScanning();
-//        createServer();
-//    }
-//
-//    private void initPortScanner() {
-//        if (extIp == null) {
-//            return;
-//        }
-//
-//        scanner = new PortScanner(extIp, null);
-//    }
-//
-//    private void runScanning() {
-//        if (scanner.getAvailablePorts().size() > 0) {
-//            return;
-//        }
-//
-//        new Thread(() -> {
-//            try {
-//                scanner.addCallback(() -> {
-//                    createServer();
-//                    scanner.clearCallbacks();
-//                    return null;
-//                });
-//                scanner.runScanning();
-//            } catch (InterruptedException | ExecutionException e) {
-//                e.printStackTrace();
-//            }
-//        }).start();
-//    }
-//
-//    private void createServer() {
-//        List<Integer> available = scanner.getAvailablePorts();
-//
-//        if (available.size() == 0) {
-//            runScanning();
-//            return;
-//        }
-//
-//        Socket socket;
-//
-//        for (int port : available) {
-//            try {
-//                try {
-//                    socket = new Socket();
-//                    socket.connect(new InetSocketAddress(extIp, port), 200);
-//                } catch (SocketTimeoutException ignored) {
-//                    trigger = new ProxyTrigger();
-//                    trigger.setProxyManager(this);
-//                    server = new Server("localhost", port, "/", ProxyChain.class);
-//                    server.start();
-//
-//                    client = ClientManager.createClient();
-//                    currentUri =  URI.create(String.format("ws://%s:%s%s", extIp, port, ProxyChain.ENDPOINT));
-//                    client.connectToServer(trigger, currentUri);
-//
-//                    break;
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//
-//
-//
-//    public ProxyManager addProxyServer(String ip, int port) {
-//        String address = String.format("ws://%s:%s%s", ip, port, ProxyChain.ENDPOINT);
-//
-//        for (String p : this.proxyServersList) {
-//            if (p.equals(address)) {
-//                return this;
-//            }
-//        }
-//        this.proxyServersList.add(address);
-//
-//        return this;
-//    }
-//
-//    public List<String> getProxyServersList() {
-//        return proxyServersList;
-//    }
-//
-//
-//
-//    public int getDeep() {
-//        return deep;
-//    }
-//
-//    public void setDeep(int deep) {
-//        this.deep = deep;
-//    }
-//}
+package services.proxy;
+
+import services.event_subscriber.EventSubscriber;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
+public class ProxyManager {
+    private String extIp;
+    private PortScanner scanner;
+    private ProxyServer server;
+    private ProxyTrigger trigger;
+
+    public ProxyManager(int deep) {
+        this.extIp = detectExternalAddress();
+        this.scanner = new PortScanner(extIp, null);
+        this.trigger = new ProxyTrigger(deep);
+
+        createServer();
+    }
+
+    public String detectExternalAddress() {
+        try {
+            return new BufferedReader(
+                    new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream())
+            ).readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private void runScanning() {
+        if (scanner.getAvailablePorts().size() > 0) {
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                scanner.addCallback(() -> {
+                    createServer();
+                    scanner.clearCallbacks();
+                    return null;
+                });
+                scanner.runScanning();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void createServer() {
+        List<Integer> available = scanner.getAvailablePorts();
+
+        if (available.size() == 0) {
+            runScanning();
+            return;
+        }
+
+        Socket socket;
+
+        for (int port : available) {
+            try {
+                try {
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress(extIp, port), 200);
+                } catch (SocketTimeoutException ignored) {
+                    server = new ProxyServer();
+                    server.listen(port);
+
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public ProxyManager proxify(String jsonString) {
+        if (server == null) {
+            return this;
+        }
+
+        try {
+            trigger.prepareMessage(jsonString);
+            ProxyAddress pa = trigger.charge();
+
+            if (pa == null) {
+                server.fireTerminateEvents(jsonString);
+                return this;
+            }
+
+            Socket s = new Socket();
+            s.connect(new InetSocketAddress(pa.getAddress(), pa.getPort()), 200);
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+            out.println(trigger.toJsonString());
+        } catch (Exception e) {
+            server.fireTerminateEvents(jsonString);
+        }
+
+        return this;
+    }
+
+    public ProxyManager setSecureKey(String secureKey) {
+        this.server.setSecureKey(secureKey);
+        this.trigger.setSecureKey(secureKey);
+        return this;
+    }
+
+    public ProxyManager onTerminate(EventSubscriber.Callback<Object[]> tc) {
+        this.server.onTerminate(tc);
+        return this;
+    }
+
+    public ProxyManager addProxyAddress(String host, int port) {
+        this.trigger.addProxyAddress(host, port);
+        return this;
+    }
+}
