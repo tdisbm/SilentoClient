@@ -11,13 +11,15 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ProxyServer {
     public static final String INVALID_SECURE_KEY = "invalid_secure_key";
-    public static final String TERMINATE_EVENT = "terminate";
+    public static final String EVENT_PROXY_TERMINATE = "proxy_terminate";
+    public static final String EVENT_PROXY_SERVER_IS_UP = "event_server_is_up";
 
     private EventSubscriber eventSubscriber;
     private LinkedHashMap<Integer, ServerSocket> listeners;
@@ -26,7 +28,7 @@ public class ProxyServer {
 
     public ProxyServer() {
         listeners = new LinkedHashMap<>();
-        serverExecutor = Executors.newSingleThreadExecutor();
+        serverExecutor = Executors.newCachedThreadPool();
         eventSubscriber = new EventSubscriber();
     }
 
@@ -65,7 +67,7 @@ public class ProxyServer {
 
                             do {
                                 if (pa == null) {
-                                    this.fireTerminateEvents(pt.getMessage());
+                                    this.fire(EVENT_PROXY_TERMINATE, pt.getMessage());
                                     break;
                                 }
 
@@ -111,13 +113,31 @@ public class ProxyServer {
         return pt;
     }
 
-    public ProxyServer onTerminate(EventSubscriber.Callback<Object[]> tc) {
-        this.eventSubscriber.subscribe(TERMINATE_EVENT, tc);
+    public ProxyServer on(String event, EventSubscriber.Callback<Object[]> tc) {
+        this.eventSubscriber.subscribe(event, tc);
         return this;
     }
 
-    public ProxyServer fireTerminateEvents(String message) {
-        this.eventSubscriber.fire(TERMINATE_EVENT, message);
+    public ProxyServer fire(String event, Object... args) {
+        this.eventSubscriber.fire(event, args);
         return this;
+    }
+
+    public boolean isListening(Integer port) {
+        if (port != null) {
+            return this.listeners.get(port) != null;
+        }
+
+        boolean isListening = false;
+
+        for (Map.Entry<Integer, ServerSocket> s : listeners.entrySet()) {
+            if (s.getValue().isClosed()) {
+                continue;
+            }
+
+            isListening = true;
+        }
+
+        return isListening;
     }
 }

@@ -41,13 +41,13 @@ public class ProxyManager {
     }
 
     private void initScanner() {
-        scanner.onScanTerminate((objects) ->
+        scanner.on(PortScanner.EVENT_SCAN_TERMINATE, (objects)->
             createServer()
         );
     }
 
     private void runScanning() {
-        if (scanner.getAvailablePorts().size() > 0) {
+        if (this.server.isListening(null)) {
             return;
         }
 
@@ -57,13 +57,13 @@ public class ProxyManager {
 
         scanAttempts--;
 
-        new Thread(() -> {
+        javafx.application.Platform.runLater(() -> {
             try {
                 scanner.runScanning();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     private void createServer() {
@@ -76,18 +76,15 @@ public class ProxyManager {
 
         for (int port : available) {
             try {
-                try {
-                    Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress(extIp, port), 200);
-                } catch (SocketTimeoutException ignored) {
-                    server = new ProxyServer();
-                    server.listen(port);
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(extIp, port), 200);
+            } catch (SocketTimeoutException e) {
+                server = new ProxyServer();
+                server.listen(port);
+                server.fire(ProxyServer.EVENT_PROXY_SERVER_IS_UP, extIp, port);
 
-                    break;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                break;
+            } catch (IOException ignored) {}
         }
     }
 
@@ -97,7 +94,7 @@ public class ProxyManager {
             ProxyAddress pa = trigger.charge();
 
             if (pa == null) {
-                server.fireTerminateEvents(jsonString);
+                server.fire(ProxyServer.EVENT_PROXY_TERMINATE, jsonString);
                 return this;
             }
 
@@ -107,7 +104,7 @@ public class ProxyManager {
             out.println(trigger.toJsonString());
             s.close();
         } catch (Exception e) {
-            server.fireTerminateEvents(jsonString);
+            server.fire(ProxyServer.EVENT_PROXY_TERMINATE, jsonString);
         }
 
         return this;
@@ -119,13 +116,8 @@ public class ProxyManager {
         return this;
     }
 
-    public ProxyManager onTerminate(EventSubscriber.Callback<Object[]> tc) {
-        this.server.onTerminate(tc);
-        return this;
-    }
-
-    public ProxyManager onScanTerminate(EventSubscriber.Callback<Object[]> c) {
-        this.scanner.onScanTerminate(c);
+    public ProxyManager on(String event, EventSubscriber.Callback<Object[]> tc) {
+        this.server.on(event, tc);
         return this;
     }
 

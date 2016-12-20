@@ -2,8 +2,8 @@ package controller;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.gson.Gson;
-import entity.Message;
 import com.google.gson.GsonBuilder;
+import entity.Message;
 import entity.User;
 import io.socket.client.Socket;
 import javafx.collections.FXCollections;
@@ -25,15 +25,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketWrapper;
-import services.proxy.PortScanner;
 import services.proxy.ProxyManager;
+import services.proxy.ProxyServer;
 import util.GridPaneUtil;
 import util.JSONArrayUtil;
 import util.JSONObjectUtil;
 import util.SocketEvents;
 
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -99,36 +98,27 @@ public class ChatController extends Controller {
 
     private void initProxyManager() {
         this.proxyManager = this.get("services.proxy_manager");
+        this.proxyManager.setSecureKey("not_so_secure");
         this.proxyManager
 
-        .onTerminate(result ->
+        .on(ProxyServer.EVENT_PROXY_TERMINATE, result ->
         javafx.application.Platform.runLater(() -> {
             Message message = gson.fromJson((String) result[0], Message.class);
             this.socket.emit(message.getEvent(), message);
         }))
 
-        .onScanTerminate(objects ->
+        .on(ProxyServer.EVENT_PROXY_SERVER_IS_UP, objects ->
         javafx.application.Platform.runLater(() -> {
-            PortScanner ps = (PortScanner) objects[0];
-            String host = (String) objects[1];
+            String host = (String) objects[0];
+            int port = (Integer) objects[1];
 
-            List<Integer> available = ps.getAvailablePorts();
-
-            if (!available.isEmpty()) {
-                final JSONArray json = new JSONArray();
-                final JSONObject[] address = new JSONObject[1];
-                available.forEach(port -> {
-                    address[0] = new JSONObject();
-                    try {
-                        address[0].put("host", host);
-                        address[0].put("port", port);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    json.put(address[0]);
-                });
-
+            try {
+                JSONObject json = new JSONObject();
+                json.put("host", host);
+                json.put("port", port);
                 socket.emit(SocketEvents.EMITTER_PROXY_LIST_UPDATE, json);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }));
     }

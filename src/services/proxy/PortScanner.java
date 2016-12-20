@@ -24,7 +24,7 @@ public class PortScanner {
     public String cachePath;
     public String address;
 
-    private static final String EVENT_SCAN_TERMINATE = "scan_terminate";
+    public static final String EVENT_SCAN_TERMINATE = "scan_terminate";
 
     private ExecutorService scanExecutor;
     private EventSubscriber eventSubscriber;
@@ -81,14 +81,14 @@ public class PortScanner {
         return this;
     }
 
-    public PortScanner onScanTerminate(EventSubscriber.Callback<Object[]> c) {
-        eventSubscriber.subscribe(EVENT_SCAN_TERMINATE, c);
+    public PortScanner on(String event, EventSubscriber.Callback<Object[]> c) {
+        eventSubscriber.subscribe(event, c);
 
         return this;
     }
 
-    public PortScanner clearCallbacks() {
-        eventSubscriber.unsubscribe(EVENT_SCAN_TERMINATE);
+    public PortScanner off(String event) {
+        eventSubscriber.unsubscribe(event);
 
         return this;
     }
