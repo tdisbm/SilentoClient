@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketWrapper;
+import services.proxy.PortScanner;
 import services.proxy.ProxyManager;
 import util.GridPaneUtil;
 import util.JSONArrayUtil;
@@ -32,12 +33,13 @@ import util.JSONObjectUtil;
 import util.SocketEvents;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChatController extends Controller {
-    public static final String KEY_EVENT = "event";
-    public static final String KEY_DESTINATION = "destination";
+    private static final String KEY_EVENT = "event";
+    private static final String KEY_DESTINATION = "destination";
 
     public GridPane userList;
 //    public GridPane roomList;
@@ -97,12 +99,37 @@ public class ChatController extends Controller {
 
     private void initProxyManager() {
         this.proxyManager = this.get("services.proxy_manager");
-        this.proxyManager.addProxyAddress("178.168.58.17", 1299);
-        this.proxyManager.setSecureKey("not_so_secure");
-        proxyManager.onTerminate(result ->
+        this.proxyManager
+
+        .onTerminate(result ->
         javafx.application.Platform.runLater(() -> {
             Message message = gson.fromJson((String) result[0], Message.class);
-            this.socket.emit(message.getEvent(), message.toJsonObject());
+            this.socket.emit(message.getEvent(), message);
+        }))
+
+        .onScanTerminate(objects ->
+        javafx.application.Platform.runLater(() -> {
+            PortScanner ps = (PortScanner) objects[0];
+            String host = (String) objects[1];
+
+            List<Integer> available = ps.getAvailablePorts();
+
+            if (!available.isEmpty()) {
+                final JSONArray json = new JSONArray();
+                final JSONObject[] address = new JSONObject[1];
+                available.forEach(port -> {
+                    address[0] = new JSONObject();
+                    try {
+                        address[0].put("host", host);
+                        address[0].put("port", port);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    json.put(address[0]);
+                });
+
+                socket.emit(SocketEvents.EMITTER_PROXY_LIST_UPDATE, json);
+            }
         }));
     }
 
@@ -126,16 +153,11 @@ public class ChatController extends Controller {
 
         socket.on(SocketEvents.CATCHER_MESSAGE_TO_USER,
         objects -> javafx.application.Platform.runLater(() -> {
-            addTabToActiveBox(
-                JSONObjectUtil.get("from", objects[0]),
-                SocketEvents.EMITTER_MESSAGE_TO_USER,
-                false
-            );
-            appendText(
-                JSONObjectUtil.get("from", objects[0]),
-                JSONObjectUtil.get("message", objects[0]),
-                JSONObjectUtil.get("from", objects[0])
-            );
+            String from = JSONObjectUtil.get("from", objects[0]);
+            String message = JSONObjectUtil.get("message", objects[0]);
+
+            addTabToActiveBox(from, SocketEvents.EMITTER_MESSAGE_TO_USER, false);
+            appendText(from, message, from);
         }));
     }
 

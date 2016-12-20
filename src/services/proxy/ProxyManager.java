@@ -19,25 +19,31 @@ public class ProxyManager {
     private PortScanner scanner;
     private ProxyServer server;
     private ProxyTrigger trigger;
+    private int scanAttempts = 2;
 
     public ProxyManager(IntNode deep) {
         this.extIp = detectExternalAddress();
         this.scanner = new PortScanner(extIp, null);
         this.trigger = new ProxyTrigger(deep.intValue());
 
+        initScanner();
         createServer();
     }
 
-    public String detectExternalAddress() {
+    private String detectExternalAddress() {
         try {
             return new BufferedReader(
                     new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream())
             ).readLine();
         } catch (IOException e) {
-            e.printStackTrace();
+            return "";
         }
+    }
 
-        return null;
+    private void initScanner() {
+        scanner.onScanTerminate((objects) ->
+            createServer()
+        );
     }
 
     private void runScanning() {
@@ -45,13 +51,14 @@ public class ProxyManager {
             return;
         }
 
+        if (scanAttempts == 0) {
+            return;
+        }
+
+        scanAttempts--;
+
         new Thread(() -> {
             try {
-                scanner.addCallback(() -> {
-                    createServer();
-                    scanner.clearCallbacks();
-                    return null;
-                });
                 scanner.runScanning();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -67,12 +74,10 @@ public class ProxyManager {
             return;
         }
 
-        Socket socket;
-
         for (int port : available) {
             try {
                 try {
-                    socket = new Socket();
+                    Socket socket = new Socket();
                     socket.connect(new InetSocketAddress(extIp, port), 200);
                 } catch (SocketTimeoutException ignored) {
                     server = new ProxyServer();
@@ -116,6 +121,11 @@ public class ProxyManager {
 
     public ProxyManager onTerminate(EventSubscriber.Callback<Object[]> tc) {
         this.server.onTerminate(tc);
+        return this;
+    }
+
+    public ProxyManager onScanTerminate(EventSubscriber.Callback<Object[]> c) {
+        this.scanner.onScanTerminate(c);
         return this;
     }
 

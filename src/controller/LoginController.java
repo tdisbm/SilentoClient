@@ -74,14 +74,14 @@ public class LoginController extends Controller {
             hideErrorMessage();
             switchController(this.get("controllers.chat_controller"));
             user.setUsername(username.getText());
-        }));
+        }))
 
-        s.on(SocketEvents.CATCHER_CONNECTION_FAILED,
+        .on(SocketEvents.CATCHER_CONNECTION_FAILED,
         objects -> javafx.application.Platform.runLater(() ->
             showErrorMessage(JSONObjectUtil.get("message", objects[0]))
-        ));
+        ))
 
-        s.on(SocketEvents.CATCHER_PROXY_LIST,
+        .on(SocketEvents.CATCHER_PROXY_LIST,
         objects -> javafx.application.Platform.runLater(() -> {
             JSONArray list = (JSONArray) objects[0];
             for (int i = 0, n = list.length(); i < n; i++) {

@@ -1,6 +1,7 @@
 package services.proxy;
 
 import org.jetbrains.annotations.NotNull;
+import services.event_subscriber.EventSubscriber;
 import util.FileUtil;
 
 import java.io.*;
@@ -10,7 +11,6 @@ import java.util.concurrent.*;
 
 
 public class PortScanner {
-    public static final int CALLBACK_EXECUTOR_SIZE = 10;
     public static final int SCAN_EXECUTOR_SIZE = 20;
     public static final int SCAN_EXECUTOR_TIMEOUT = 200;
     public static final String DEFAULT_CACHE_FILE_PATH = "87hv4rc21.txt";
@@ -19,16 +19,16 @@ public class PortScanner {
     public static final int STATE_WAITING = 3;
 
     public static final int PORT_VALUE_MIN = 0x400;
-    public static final int PORT_VALUE_MAX = 7000;//0xFFFF;
+    public static final int PORT_VALUE_MAX = 0xFFFF;
 
     public String cachePath;
     public String address;
 
-    private ExecutorService scanExecutor;
-    private ExecutorService callbackExecutor;
-    private List<Integer> availablePorts;
+    private static final String EVENT_SCAN_TERMINATE = "scan_terminate";
 
-    private List<Callable<Void>> callbacks;
+    private ExecutorService scanExecutor;
+    private EventSubscriber eventSubscriber;
+    private List<Integer> availablePorts;
 
     private int state;
 
@@ -36,15 +36,18 @@ public class PortScanner {
         this.cachePath = FileUtil.absolute(cachePath == null ? DEFAULT_CACHE_FILE_PATH : cachePath);
         this.address = address;
 
-        callbackExecutor = Executors.newFixedThreadPool(CALLBACK_EXECUTOR_SIZE);
         scanExecutor = Executors.newFixedThreadPool(SCAN_EXECUTOR_SIZE);
-
         availablePorts = new LinkedList<>();
-        callbacks = new ArrayList<>();
+
         state = STATE_WAITING;
 
         FileUtil.createFileIfAbsent(this.cachePath);
+        initEventSubscriber();
         fetchCache();
+    }
+
+    private void initEventSubscriber() {
+        eventSubscriber = new EventSubscriber();
     }
 
     public void runScanning() throws InterruptedException, ExecutionException {
@@ -72,21 +75,20 @@ public class PortScanner {
     public PortScanner stopExecution() {
         if (state == STATE_SCANNING) {
             scanExecutor.shutdownNow();
-            callbackExecutor.shutdownNow();
             state = STATE_WAITING;
         }
 
         return this;
     }
 
-    public PortScanner addCallback(Callable<Void> c) {
-        callbacks.add(c);
+    public PortScanner onScanTerminate(EventSubscriber.Callback<Object[]> c) {
+        eventSubscriber.subscribe(EVENT_SCAN_TERMINATE, c);
 
         return this;
     }
 
     public PortScanner clearCallbacks() {
-        callbacks.clear();
+        eventSubscriber.unsubscribe(EVENT_SCAN_TERMINATE);
 
         return this;
     }
@@ -104,18 +106,11 @@ public class PortScanner {
         scanTerminateTask.add(() -> {
             writeCache();
             state = STATE_WAITING;
-            callbackExecutor.invokeAll(callbacks);
+            eventSubscriber.fire(EVENT_SCAN_TERMINATE, this, address);
             scanExecutor.shutdownNow();
             return null;
         });
 
-        List<Callable<Void>> callbackTerminateTask = new ArrayList<>();
-        callbackTerminateTask.add(() -> {
-            callbackExecutor.shutdownNow();
-            return null;
-        });
-
-        callbackExecutor.invokeAll(callbackTerminateTask);
         scanExecutor.invokeAll(scanTerminateTask);
     }
 

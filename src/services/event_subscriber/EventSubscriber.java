@@ -3,12 +3,16 @@ package services.event_subscriber;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EventSubscriber {
     private LinkedHashMap<String, List<Callback<Object[]>>> events;
+    private ExecutorService executor;
 
     public EventSubscriber() {
         this.events = new LinkedHashMap<>();
+        this.executor = Executors.newFixedThreadPool(20);
     }
 
     public EventSubscriber subscribe(String name, Callback<Object[]> callable) {
@@ -28,19 +32,23 @@ public class EventSubscriber {
         List<Callback<Object[]>> c = this.events.get(name);
 
         if (c != null) {
-            c.forEach(callable -> {
-                try {
-                    callable.call(args);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            try {
+                c.forEach(callable -> {
+                    executor.submit(() -> {
+                        callable.call(args);
+
+                        return null;
+                    });
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return this;
     }
 
-    public EventSubscriber close(String name) {
+    public EventSubscriber unsubscribe(String name) {
         this.events.remove(name);
         return this;
     }
