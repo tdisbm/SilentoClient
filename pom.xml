@@ -17,7 +17,7 @@
         <socket.io-client.version>0.7.0</socket.io-client.version>
         <maven.shade.plugin.version>1.7.1</maven.shade.plugin.version>
 
-        <kraken.version>fa183ed887<!--30881f5e53--><!--e992869811--></kraken.version>
+        <kraken.version>1.1.31</kraken.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
@@ -41,36 +41,6 @@
             <artifactId>socket.io-client</artifactId>
             <version>${socket.io-client.version}</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>javax.websocket</groupId>-->
-            <!--<artifactId>javax.websocket-api</artifactId>-->
-            <!--<version>1.0</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.tyrus</groupId>-->
-            <!--<artifactId>tyrus-server</artifactId>-->
-            <!--<version>1.1</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.tyrus</groupId>-->
-            <!--<artifactId>tyrus-client</artifactId>-->
-            <!--<version>1.1</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.tyrus</groupId>-->
-            <!--<artifactId>tyrus-container-grizzly</artifactId>-->
-            <!--<version>1.1</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.sun.grizzly</groupId>-->
-            <!--<artifactId>grizzly-websockets</artifactId>-->
-            <!--<version>2.0.0-RC1</version>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>com.google.code.gson</groupId>

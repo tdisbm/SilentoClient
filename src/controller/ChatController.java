@@ -20,13 +20,14 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import kraken.extension.fx.controller.Controller;
+import kraken.Kraken;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketWrapper;
 import services.proxy.ProxyManager;
 import services.proxy.ProxyServer;
+import util.Controller;
 import util.GridPaneUtil;
 import util.JSONArrayUtil;
 import util.JSONObjectUtil;
@@ -37,11 +38,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChatController extends Controller {
+    public static final String ID = "chat_controller";
+    public static final String VIEW = "resources/views/chat.fxml";
+
     private static final String KEY_EVENT = "event";
     private static final String KEY_DESTINATION = "destination";
 
     public GridPane userList;
-//    public GridPane roomList;
     public TextArea messageField;
     public Button sendButton;
     public TabPane activeBox;
@@ -53,13 +56,17 @@ public class ChatController extends Controller {
     private ProxyManager proxyManager;
     private Gson gson;
 
-    @Override
-    public void init() {
-        this.socket = ((SocketWrapper) this.get("services.socket_wrapper")).getSocket();
-        this.user = this.get("services.user_entity");
+    public ChatController() {
+        this.socket = ((SocketWrapper) Kraken.getInstance().getContainer().get("services.socket_wrapper")).getSocket();
+        this.user = Kraken.getInstance().getContainer().get("services.user_entity");
+        this.proxyManager = Kraken.getInstance().getContainer().get("services.proxy_manager");
+
         this.messagePacket = new Message();
         this.gson = new GsonBuilder().create();
+    }
 
+    @Override
+    public void onCreate() {
         this.registerSocketEvents();
         this.onMessageBoxInput();
         this.initProxyManager();
@@ -97,7 +104,6 @@ public class ChatController extends Controller {
     }
 
     private void initProxyManager() {
-        this.proxyManager = this.get("services.proxy_manager");
         this.proxyManager.setSecureKey("not_so_secure");
         this.proxyManager
 
@@ -124,7 +130,7 @@ public class ChatController extends Controller {
     }
 
     private void initWelcomeBox() {
-        TextNode url = this.get("parameters.silento_news_url");
+        TextNode url = Kraken.getInstance().getContainer().get("parameters.silento_news_url");
         WebEngine engine = welcomeBox.getEngine();
         engine.load(url.asText());
     }
@@ -303,5 +309,13 @@ public class ChatController extends Controller {
                 gp.addRow(rowCount, new Label(from + ":   " + message));
             }
         }
+    }
+
+    @Override
+    public void configure(Controller.Configurator configurator) {
+        configurator
+            .setId(ID)
+            .setView(VIEW)
+        ;
     }
 }

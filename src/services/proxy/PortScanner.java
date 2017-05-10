@@ -1,6 +1,5 @@
 package services.proxy;
 
-import org.jetbrains.annotations.NotNull;
 import services.event_subscriber.EventSubscriber;
 import util.FileUtil;
 
@@ -32,7 +31,7 @@ public class PortScanner {
 
     private int state;
 
-    public PortScanner(@NotNull String address, String cachePath) {
+    public PortScanner(String address, String cachePath) {
         this.cachePath = FileUtil.absolute(cachePath == null ? DEFAULT_CACHE_FILE_PATH : cachePath);
         this.address = address;
 
@@ -51,7 +50,7 @@ public class PortScanner {
     }
 
     public void runScanning() throws InterruptedException, ExecutionException {
-        if (state == STATE_SCANNING) {
+        if (isScanning()) {
             return;
         }
 

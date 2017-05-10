@@ -21,10 +21,11 @@ public class ProxyManager {
     private ProxyTrigger trigger;
     private int scanAttempts = 2;
 
-    public ProxyManager(IntNode deep) {
+    public ProxyManager(String deep) {
         this.extIp = detectExternalAddress();
         this.scanner = new PortScanner(extIp, null);
-        this.trigger = new ProxyTrigger(deep.intValue());
+        this.server = new ProxyServer();
+        this.trigger = new ProxyTrigger(Integer.parseInt(deep));
 
         initScanner();
         createServer();
@@ -79,7 +80,6 @@ public class ProxyManager {
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(extIp, port), 200);
             } catch (SocketTimeoutException e) {
-                server = new ProxyServer();
                 server.listen(port);
                 server.fire(ProxyServer.EVENT_PROXY_SERVER_IS_UP, extIp, port);
 
