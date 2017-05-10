@@ -13,6 +13,9 @@
     <orderEntry type="library" name="Maven: com.github.tdisbm:Kraken:1.1.31" level="project" />
     <orderEntry type="library" name="Maven: com.pi4j:pi4j-core:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.pi4j:pi4j-gpio-extension:1.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.tdisbm:Kraken:1.1.31" level="project" />
+    <orderEntry type="library" name="Maven: com.pi4j:pi4j-core:1.0" level="project" />
+    <orderEntry type="library" name="Maven: com.pi4j:pi4j-gpio-extension:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.7.4" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.4" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.15" level="project" />

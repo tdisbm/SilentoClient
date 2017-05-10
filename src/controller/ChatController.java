@@ -33,6 +33,8 @@ import util.JSONArrayUtil;
 import util.JSONObjectUtil;
 import util.SocketEvents;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.io.File;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -154,9 +156,26 @@ public class ChatController extends Controller {
             String from = JSONObjectUtil.get("from", objects[0]);
             String message = JSONObjectUtil.get("message", objects[0]);
 
+            File file = new File("resources/sound/sound.wav");
+            playSound(file);
+
             addTabToActiveBox(from, SocketEvents.EMITTER_MESSAGE_TO_USER, false);
             appendText(from, message, from);
         }));
+    }
+
+    private void playSound(File Sound) {
+
+        new Thread(
+            () -> {
+                    try {
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(AudioSystem.getAudioInputStream(Sound));
+                        clip.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
     }
 
     private void addTabToActiveBox(String username, String event, boolean select) {
