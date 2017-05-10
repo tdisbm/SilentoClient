@@ -110,7 +110,9 @@ public class ChatController extends Controller {
         .on(ProxyServer.EVENT_PROXY_TERMINATE, result ->
         javafx.application.Platform.runLater(() -> {
             Message message = gson.fromJson((String) result[0], Message.class);
-            this.socket.emit(message.getEvent(), message);
+            String event = message.getEvent();
+            message.setEvent(null);
+            this.socket.emit(event, message.toJsonObject());
         }))
 
         .on(ProxyServer.EVENT_PROXY_SERVER_IS_UP, objects ->
