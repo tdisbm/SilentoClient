@@ -21,9 +21,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import kraken.Kraken;
+import kraken.unit.Container;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import services.AvatarCollection;
 import services.SocketWrapper;
 import services.proxy.ProxyManager;
 import services.proxy.ProxyServer;
@@ -57,11 +59,14 @@ public class ChatController extends Controller {
     private Message messagePacket;
     private ProxyManager proxyManager;
     private Gson gson;
+    private AvatarCollection avatarCollection;
 
     public ChatController() {
-        this.socket = ((SocketWrapper) Kraken.getInstance().getContainer().get("services.socket_wrapper")).getSocket();
-        this.user = Kraken.getInstance().getContainer().get("services.user_entity");
-        this.proxyManager = Kraken.getInstance().getContainer().get("services.proxy_manager");
+        Container container = Kraken.getInstance().getContainer();
+        this.socket = ((SocketWrapper) container.get("services.socket_wrapper")).getSocket();
+        this.user = container.get("services.user_entity");
+        this.proxyManager = container.get("services.proxy_manager");
+        this.avatarCollection = container.get("services.avatar_collection");
 
         this.messagePacket = new Message();
         this.gson = new GsonBuilder().create();
@@ -268,7 +273,7 @@ public class ChatController extends Controller {
                 GridPane.setHalignment(imageView, HPos.LEFT);
                 GridPane.setValignment(imageView, VPos.CENTER);
 
-                image = new Image(new File("resources/views/img/send.png").toURI().toString());
+                image = new Image(new File(avatarCollection.random()).toURI().toString());
                 imageView.setImage(image);
 
                 insets = new Insets(0,0,0,6);

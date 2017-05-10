@@ -4,6 +4,19 @@ services:
   user_entity:
     class: entity.User
 
+  avatar_collection:
+    class: services.AvatarCollection
+    invoke:
+      - ["add", ["resources/img/avatar/avatar-1.png"]]
+      - ["add", ["resources/img/avatar/avatar-2.png"]]
+      - ["add", ["resources/img/avatar/avatar-3.png"]]
+      - ["add", ["resources/img/avatar/avatar-4.png"]]
+      - ["add", ["resources/img/avatar/avatar-5.png"]]
+      - ["add", ["resources/img/avatar/avatar-6.png"]]
+      - ["add", ["resources/img/avatar/avatar-7.png"]]
+      - ["add", ["resources/img/avatar/avatar-8.png"]]
+      - ["add", ["resources/img/avatar/avatar-9.png"]]
+
   proxy_manager:
     class: services.proxy.ProxyManager
     arguments:
