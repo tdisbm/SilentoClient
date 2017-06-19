@@ -1,6 +1,6 @@
-package services.proxy;
+package components.proxy;
 
-import services.event_subscriber.EventSubscriber;
+import components.event_subscriber.EventSubscriber;
 import util.FileUtil;
 
 import java.io.*;

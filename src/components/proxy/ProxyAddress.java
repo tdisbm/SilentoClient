@@ -1,4 +1,4 @@
-package services.proxy;
+package components.proxy;
 
 public class ProxyAddress {
     private String address;

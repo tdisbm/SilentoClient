@@ -1,7 +1,7 @@
-package services.proxy;
+package components.proxy;
 
 
-import services.event_subscriber.EventSubscriber;
+import components.event_subscriber.EventSubscriber;
 
 import java.io.BufferedReader;
 import java.io.IOException;

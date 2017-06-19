@@ -27,8 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import services.AvatarCollection;
 import services.SocketWrapper;
-import services.proxy.ProxyManager;
-import services.proxy.ProxyServer;
+import components.proxy.ProxyManager;
+import components.proxy.ProxyServer;
 import tasks.RSAKeyGenerator;
 import util.*;
 

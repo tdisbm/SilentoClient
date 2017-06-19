@@ -18,6 +18,6 @@ services:
       - ["add", ["resources/img/avatar/avatar-9.png"]]
 
   proxy_manager:
-    class: services.proxy.ProxyManager
+    class: components.proxy.ProxyManager
     arguments:
       - 2

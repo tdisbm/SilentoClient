@@ -1,4 +1,4 @@
-package components;
+package components.extension;
 
 import kraken.container.ContainerResolver;
 import kraken.unit.Container;

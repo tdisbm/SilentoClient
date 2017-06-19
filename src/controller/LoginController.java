@@ -14,7 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import services.SocketRoles;
 import services.SocketWrapper;
-import services.proxy.ProxyManager;
+import components.proxy.ProxyManager;
 import util.*;
 
 public class LoginController extends Controller {

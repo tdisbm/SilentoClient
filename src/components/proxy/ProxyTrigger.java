@@ -1,9 +1,9 @@
-package services.proxy;
+package components.proxy;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import services.proxy.components.JsonSerializable;
+import components.json.JsonSerializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,8 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ProxyTrigger implements JsonSerializable {
-    public static final int DEFAULT_PROXY_DEEP = 2;
-
+    private static final int DEFAULT_PROXY_DEEP = 2;
     private String message;
     private List<ProxyAddress> proxyStack;
     private List<ProxyAddress> proxyRoute;
@@ -65,22 +64,22 @@ public class ProxyTrigger implements JsonSerializable {
     }
 
     public String toJsonString() {
-        String serializedProxyStack = "";
+        StringBuilder serializedProxyStack = new StringBuilder();
         ProxyAddress current;
         for (int i = 0, n = proxyRoute.size(); i < n; i++) {
             current = proxyRoute.get(i);
 
             if (current != null) {
-                serializedProxyStack += proxyRoute.get(i).getAddress() + ":" + current.getPort();
+                serializedProxyStack.append(proxyRoute.get(i).getAddress()).append(":").append(current.getPort());
                 if (i != n - 1) {
-                    serializedProxyStack += ", ";
+                    serializedProxyStack.append(", ");
                 }
             }
         }
 
         return String.format(
             "{proxyRoute: [\"%s\"], message: %s, secureKey: \"%s\"}",
-            serializedProxyStack,
+                serializedProxyStack.toString(),
             message,
             secureKey
         );
@@ -111,14 +110,12 @@ public class ProxyTrigger implements JsonSerializable {
 
     public ProxyTrigger prepareMessage(String message) {
         if (message == null) {
-//            updateStatus(STATUS_EMPTY_MESSAGE);
             return this;
         }
 
         try {
             new JSONObject(message);
         } catch (JSONException e) {
-//            status = STATUS_MALFORMED_MESSAGE;
             System.out.println("Proxy message must be valid json string");
             return this;
         }
@@ -130,7 +127,6 @@ public class ProxyTrigger implements JsonSerializable {
         int max = proxyStack.size();
 
         if (max == 0) {
-//            status = STATUS_EMPTY_PROXY_LiST;
             return this;
         }
 

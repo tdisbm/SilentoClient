@@ -38,6 +38,7 @@ public class ControllerManager {
         for (Map.Entry<String, Controller> controller : controllers.entrySet()) {
             if (controller.getValue().getConfigurator().isMain()) {
                 changeController(controller.getKey());
+                break;
             }
         }
     }

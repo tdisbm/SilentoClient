@@ -1,4 +1,4 @@
-package services.event_subscriber;
+package components.event_subscriber;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
