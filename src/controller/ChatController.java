@@ -66,24 +66,26 @@ public class ChatController extends Controller {
 
     public ChatController() {
         Container container = Kraken.getInstance().getContainer();
+
         avatarCollection = container.get("services.avatar_collection");
         rsaKeyGenerator = container.get("tasks.rsa_key_generator");
         proxyManager = container.get("services.proxy_manager");
+        socket = ((SocketWrapper) container.get("services.socket_wrapper")).getSocket();
+        user = container.get("services.user_entity");
+
         messagePacket = new Message();
         messageSound = new File("resources/sound/sound.wav");
         tunnelingMap = new LinkedHashMap<>();
-        socket = ((SocketWrapper) container.get("services.socket_wrapper")).getSocket();
-        user = container.get("services.user_entity");
         gson = new GsonBuilder().create();
     }
 
     @Override
     public void onCreate() {
-        this.registerSocketEvents();
-        this.onMessageBoxInput();
-        this.initProxyManager();
-        this.initWelcomeBox();
-        this.initialEmit();
+        registerSocketEvents();
+        onMessageBoxInput();
+        initProxyManager();
+        initWelcomeBox();
+        initialEmit();
     }
 
     public void sendMessage() {
@@ -330,7 +332,6 @@ public class ChatController extends Controller {
         }
     }
 
-    // TODO: Add source to check if is online to io.server
     private void updateActiveBox(JSONArray users) {
         ObservableList<Tab> toRemove = FXCollections.observableArrayList();
         toRemove.addAll(activeBox.getTabs()

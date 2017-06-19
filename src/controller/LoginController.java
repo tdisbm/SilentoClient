@@ -18,9 +18,9 @@ import services.proxy.ProxyManager;
 import util.*;
 
 public class LoginController extends Controller {
-    public final static String ID = "login_controller";
-    public static final String VIEW = "resources/views/login.fxml";
-    public final static String MESSAGE_MANDATORY_USERNAME = "username is mandatory";
+    private final static String ID = "login_controller";
+    private final static String VIEW = "resources/views/login.fxml";
+    private final static String MESSAGE_MANDATORY_USERNAME = "username is mandatory";
 
     public TextField username;
     public Text error;
@@ -40,6 +40,12 @@ public class LoginController extends Controller {
     }
 
     @Override
+    public void onCreate() {
+        socketWrapper.create();
+        registerSocketEvents();
+    }
+
+    @Override
     public void onDisplay() {
         username.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() >= Constraints.USERNAME_MAX_LENGTH) {
@@ -52,7 +58,7 @@ public class LoginController extends Controller {
         String username = this.username.getText();
 
         if (username.isEmpty()) {
-            this.showErrorMessage(MESSAGE_MANDATORY_USERNAME);
+            showErrorMessage(MESSAGE_MANDATORY_USERNAME);
             return;
         }
 
@@ -61,9 +67,7 @@ public class LoginController extends Controller {
             username
         );
 
-        socketWrapper.create();
         socketWrapper.connect();
-        this.registerSocketEvents();
     }
 
     private void registerSocketEvents() {

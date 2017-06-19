@@ -17,7 +17,7 @@
         <socket.io-client.version>0.7.0</socket.io-client.version>
         <maven.shade.plugin.version>1.7.1</maven.shade.plugin.version>
 
-        <kraken.version>1.1.31</kraken.version>
+        <kraken.version>6e34346a40</kraken.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>

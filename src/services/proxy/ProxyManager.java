@@ -56,13 +56,13 @@ public class ProxyManager {
 
         scanAttempts--;
 
-        javafx.application.Platform.runLater(() -> {
+        javafx.application.Platform.runLater(() -> new Thread(() -> {
             try {
                 scanner.runScanning();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-        });
+        }).start());
     }
 
     private void createServer() {
