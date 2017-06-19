@@ -2,9 +2,7 @@ import components.extension.ParameterExtension;
 import controller.ChatController;
 import controller.LoginController;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import kraken.Kraken;
 import util.ControllerManager;
 
