@@ -1,8 +1,6 @@
 package services.proxy;
 
-import com.fasterxml.jackson.databind.node.IntNode;
 import services.event_subscriber.EventSubscriber;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,7 +40,7 @@ public class ProxyManager {
     }
 
     private void initScanner() {
-        scanner.on(PortScanner.EVENT_SCAN_TERMINATE, (objects)->
+        scanner.on(PortScanner.EVENT_SCAN_TERMINATE, (objects) ->
             createServer()
         );
     }

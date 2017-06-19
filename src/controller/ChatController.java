@@ -29,15 +29,14 @@ import services.AvatarCollection;
 import services.SocketWrapper;
 import services.proxy.ProxyManager;
 import services.proxy.ProxyServer;
-import util.Controller;
-import util.GridPaneUtil;
-import util.JSONArrayUtil;
-import util.JSONObjectUtil;
-import util.SocketEvents;
+import tasks.RSAKeyGenerator;
+import util.*;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -49,6 +48,7 @@ public class ChatController extends Controller {
     private static final String KEY_DESTINATION = "destination";
 
     public GridPane userList;
+
     public TextArea messageField;
     public Button sendButton;
     public TabPane activeBox;
@@ -60,16 +60,21 @@ public class ChatController extends Controller {
     private ProxyManager proxyManager;
     private Gson gson;
     private AvatarCollection avatarCollection;
+    private RSAKeyGenerator rsaKeyGenerator;
+    private LinkedHashMap<String, PublicKey> tunnelingMap;
+    private File messageSound;
 
     public ChatController() {
         Container container = Kraken.getInstance().getContainer();
-        this.socket = ((SocketWrapper) container.get("services.socket_wrapper")).getSocket();
-        this.user = container.get("services.user_entity");
-        this.proxyManager = container.get("services.proxy_manager");
-        this.avatarCollection = container.get("services.avatar_collection");
-
-        this.messagePacket = new Message();
-        this.gson = new GsonBuilder().create();
+        avatarCollection = container.get("services.avatar_collection");
+        rsaKeyGenerator = container.get("tasks.rsa_key_generator");
+        proxyManager = container.get("services.proxy_manager");
+        messagePacket = new Message();
+        messageSound = new File("resources/sound/sound.wav");
+        tunnelingMap = new LinkedHashMap<>();
+        socket = ((SocketWrapper) container.get("services.socket_wrapper")).getSocket();
+        user = container.get("services.user_entity");
+        gson = new GsonBuilder().create();
     }
 
     @Override
@@ -97,6 +102,13 @@ public class ChatController extends Controller {
         String event = JSONObjectUtil.get(KEY_EVENT, userData);
         String from = this.user.getUsername();
 
+        PublicKey publicKey = tunnelingMap.get(to);
+
+        appendText(from, message, null);
+        if (publicKey != null) {
+            message = RSAEncryptionUtil.encrypt(message, publicKey);
+        }
+
         messagePacket
             .setTo(to)
             .setEvent(event)
@@ -106,8 +118,6 @@ public class ChatController extends Controller {
 
         proxyManager.proxify(gson.toJson(messagePacket));
         messageField.clear();
-
-        appendText(from, message, null);
     }
 
     private void initProxyManager() {
@@ -161,26 +171,43 @@ public class ChatController extends Controller {
             String from = JSONObjectUtil.get("from", objects[0]);
             String message = JSONObjectUtil.get("message", objects[0]);
 
-            File file = new File("resources/sound/sound.wav");
-            playSound(file);
-
-            addTabToActiveBox(from, SocketEvents.EMITTER_MESSAGE_TO_USER, false);
-            appendText(from, message, from);
+            if (message != null) {
+                SoundPlayer.playSound(messageSound);
+                message = RSAEncryptionUtil.decrypt(message, rsaKeyGenerator.getPrivateKey());
+                addTabToActiveBox(from, SocketEvents.EMITTER_MESSAGE_TO_USER, false);
+                appendText(from, message, from);
+            }
         }));
-    }
 
-    private void playSound(File Sound) {
+        socket.on(SocketEvents.CATCHER_TUNNELING_REQUEST,
+        objects -> javafx.application.Platform.runLater(() -> {
+            String from = JSONObjectUtil.get("from", objects[0]);
+            String publicKey = JSONObjectUtil.get("public_key", objects[0]);
 
-        new Thread(
-            () -> {
-                    try {
-                        Clip clip = AudioSystem.getClip();
-                        clip.open(AudioSystem.getAudioInputStream(Sound));
-                        clip.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }).start();
+            try {
+                tunnelingMap.put(from, RSAEncryptionUtil.loadPublicKey(publicKey));
+            } catch (GeneralSecurityException | IOException e) {
+                e.printStackTrace();
+            }
+
+            LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+            parameters.put("from", user.getUsername());
+            parameters.put("to", from);
+            parameters.put("public_key", rsaKeyGenerator.getSerializedPublicKey());
+            socket.emit(SocketEvents.EMITTER_TUNNELING_CONFIRM, parameters);
+        }));
+
+        socket.on(SocketEvents.CATCHER_TUNNELING_CONFIRM,
+        objects -> javafx.application.Platform.runLater(() -> {
+            String from = JSONObjectUtil.get("from", objects[0]);
+            String publicKey = JSONObjectUtil.get("public_key", objects[0]);
+
+            try {
+                tunnelingMap.put(from, RSAEncryptionUtil.loadPublicKey(publicKey));
+            } catch (GeneralSecurityException | IOException e) {
+                e.printStackTrace();
+            }
+        }));
     }
 
     private void addTabToActiveBox(String username, String event, boolean select) {
@@ -220,9 +247,15 @@ public class ChatController extends Controller {
     }
 
     private void onUserLabelClick(Label l) {
-        l.setOnMouseClicked(event ->
-            addTabToActiveBox(l.getText(), SocketEvents.EMITTER_MESSAGE_TO_USER, true)
-        );
+        l.setOnMouseClicked(event -> {
+            LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+            parameters.put("from", user.getUsername());
+            parameters.put("to", l.getText());
+            parameters.put("public_key", rsaKeyGenerator.getSerializedPublicKey());
+
+            socket.emit(SocketEvents.EMITTER_TUNNELING_REQUEST, parameters);
+            addTabToActiveBox(l.getText(), SocketEvents.EMITTER_MESSAGE_TO_USER, true);
+        });
     }
 
     private void onMessageBoxInput() {

@@ -1,0 +1,6 @@
+tasks:
+  rsa_key_generator:
+      class: tasks.RSAKeyGenerator
+      rate: 600000
+      arguments:
+          - 1024

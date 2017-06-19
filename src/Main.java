@@ -13,6 +13,7 @@ public class Main extends Application {
         Kraken.getInstance()
             .sink(new File("resources/parameters.yml"))
             .sink(new File("resources/services.yml"))
+            .sink(new File("resources/tasks.yml"))
             .sink(new ParameterExtension())
         .dive();
 
